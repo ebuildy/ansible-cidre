@@ -1,0 +1,87 @@
+---
+
+- name: Get milestone
+  tags: ["always", "gitlab_milestone"]
+  block:
+  - name: Gitlab API > Get milestone
+    uri: &gitlab_api_uri
+      url: "{{ gitlab.endpoint }}/projects/{{ project.id }}/milestones?title={{ project.version }}"
+      method: GET
+      body_format: json
+      validate_certs: no
+      http_agent: "Keployr/cidre via Ansible v1.0.0"
+      status_code:
+      - 200
+      - 201
+      headers:
+          Content-Type: application/json
+          Authorization: Bearer {{ gitlab.access_token }}
+    register: gitlab_project_milestones
+  - when: gitlab_project_milestones.x_total == "0"
+    fail:
+      msg: "milestone '{{ project.version }}' dont exist!"
+
+- name: Check | git commits
+  tags: ["always"]
+  block:
+  - shell: "git status --porcelain"
+    register: git_status
+  - fail:
+      msg: "Please clean git status: {{ git_status.stdout }}"
+    when: git_status.stdout != ""
+
+- name: Check | git branch
+  tags: ["always"]
+  block:
+  - shell: "git branch --show-current"
+    register: git_branch
+  - fail:
+      msg: "You are not in a release ({{ git.branches.release }}/*) branch!"
+    when: git_branch.stdout | search(git.branches.release)
+
+- name: Merge branch into develop & main
+  tags: ["always", "git_merge"]
+  shell: |
+    git checkout {{ item }}
+    git merge {{ git_branch.stdout }}
+  with_items:
+  - "{{ git.branches.develop }}"
+  - "{{ git.branches.main }}"
+
+- name: Delete local and remote release branch
+  tags: ["always", "git_delete_branch"]
+  shell: |
+    git branch -D {{ git_branch.stdout }}
+    git push -d origin {{ git_branch.stdout }}
+
+- name: git tag
+  tags: ["always", "git_tag"]
+  shell: |
+    git checkout {{ git.branches.main }}
+    git tag -a {{ project.version }} -m "{{ project.version }}: {{ gitlab_project_milestones.json[0].web_url }}"
+
+- name: Create gitlab release
+  tags: ["always", "gitlab_release"]
+  block:
+  - uri:
+      <<: *gitlab_api_uri
+      url: "{{ gitlab.endpoint }}/projects/{{ project.id }}/releases"
+      method: POST
+      body:
+        name: "{{ project.version }}"
+        tag_name: "{{ project.version }}"
+        description: "{{ gitlab_project_milestones.json[0].description }}"
+        milestones: ["{{ project.version }}"]
+      status_code: 201
+    register: gitlab_issue
+  - debug:
+      #var: gitlab_issue
+      msg: "Issue created! {{ gitlab_issue.json.web_url }}"
+
+- name: git push
+  tags: ["always", "git_push"]
+  shell: "git push origin {{ branch }}"
+  with_items:
+  - "{{ git.branches.develop }}"
+  - "{{ git.branches.main }}"
+  - "{{ project.version }}"
