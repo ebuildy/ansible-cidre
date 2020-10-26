@@ -1,0 +1,11 @@
+## Issues:
+
+{% for issue in gitlab_issues.json %}
+* \#{{ issue.id }} {{ issue.title }} @{{ issue.author.name }} - {{ issue.web_url }}
+{% endfor %}
+
+## Changes:
+
+{% for change in git_changes.stdout_lines %}
+* {{ change }}
+{% endfor %}
