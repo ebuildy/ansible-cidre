@@ -30,35 +30,53 @@
       msg: "Please clean git status: {{ git_status.stdout }}"
     when: git_status.stdout != ""
 
-- name: Check | git branch
+- tags: ["always"]
+  set_fact:
+    git_branch: "{{ git.branches.release }}/{{ project.version }}"
+
+#- name: Check | git branch
+#  tags: ["always"]
+#  block:
+#  - shell: "git branch --show-current"
+#    register: git_branch
+#  - fail:
+#      msg: "You are not in a release ({{ git.branches.release }}/*) branch!"
+#    when: git_branch.stdout | regex_search("^" ~ git.branches.release ~ "\/(.*)$")
+
+# Check branch exist (or not, this not required)
+- shell: "git rev-parse --verify --quiet {{ git_branch }} || true"
   tags: ["always"]
-  block:
-  - shell: "git branch --show-current"
-    register: git_branch
-  - fail:
-      msg: "You are not in a release ({{ git.branches.release }}/*) branch!"
-    when: git_branch.stdout | search(git.branches.release)
+  register: shell_git_branch
+
+# Check tag exist
+- shell: "git rev-parse --verify --quiet {{ project.version }} || true"
+  tags: ["always"]
+  register: shell_git_tag
 
 - name: Merge branch into develop & main
   tags: ["always", "git_merge"]
+  when: shell_git_branch.stdout != ""
   shell: |
     git checkout {{ item }}
-    git merge {{ git_branch.stdout }}
+    git merge {{ git_branch }}
   with_items:
   - "{{ git.branches.develop }}"
   - "{{ git.branches.main }}"
 
-- name: Delete local and remote release branch
-  tags: ["always", "git_delete_branch"]
-  shell: |
-    git branch -D {{ git_branch.stdout }}
-    git push -d origin {{ git_branch.stdout }}
-
 - name: git tag
   tags: ["always", "git_tag"]
+  when: shell_git_tag.stdout == ""
   shell: |
     git checkout {{ git.branches.main }}
     git tag -a {{ project.version }} -m "{{ project.version }}: {{ gitlab_project_milestones.json[0].web_url }}"
+
+- name: git push
+  tags: ["always", "git_push"]
+  shell: "git push origin {{ item }}"
+  with_items:
+  - "{{ git.branches.develop }}"
+  - "{{ git.branches.main }}"
+  - "{{ project.version }}"
 
 - name: Create gitlab release
   tags: ["always", "gitlab_release"]
@@ -72,16 +90,14 @@
         tag_name: "{{ project.version }}"
         description: "{{ gitlab_project_milestones.json[0].description }}"
         milestones: ["{{ project.version }}"]
-      status_code: 201
+      status_code: [200, 201]
     register: gitlab_issue
   - debug:
       #var: gitlab_issue
-      msg: "Issue created! {{ gitlab_issue.json.web_url }}"
+      msg: "Release created!"
 
-- name: git push
-  tags: ["always", "git_push"]
-  shell: "git push origin {{ branch }}"
-  with_items:
-  - "{{ git.branches.develop }}"
-  - "{{ git.branches.main }}"
-  - "{{ project.version }}"
+- name: Delete local and remote release branch
+  tags: ["always", "git_delete_branch"]
+  shell: |
+    git branch -D {{ git_branch }}
+    git push -d origin {{ git_branch }}
