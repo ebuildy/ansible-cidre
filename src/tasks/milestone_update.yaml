@@ -1,0 +1,59 @@
+---
+
+- name: Get milestone
+  tags: ["always", "gitlab_milestone"]
+  block:
+  - name: Gitlab API > Get milestone
+    uri: &gitlab_api_uri
+      url: "{{ gitlab.endpoint }}/projects/{{ project.id }}/milestones?title={{ project.version }}"
+      method: GET
+      body_format: json
+      validate_certs: no
+      http_agent: "Keployr/cidre via Ansible v1.0.0"
+      status_code: 200
+      headers:
+          Content-Type: application/json
+          Authorization: Bearer {{ gitlab.access_token }}
+    register: gitlab_project_milestones
+  - when: gitlab_project_milestones.x_total == "0"
+    fail:
+      msg: "milestone '{{ project.version }}' dont exist!"
+
+- name: List issues
+  tags: ["always", "gitlab_api"]
+  uri:
+    <<: *gitlab_api_uri
+    url: "{{ gitlab.endpoint }}/projects/{{ project.id }}/issues?milestone={{ project.version }}"
+    method: GET
+    status_code: 200
+  register: gitlab_issues
+
+
+- name: Git change log
+  tags: ["always", "git"]
+  shell:
+    cmd: "git log $(git describe --tags --abbrev=0)..HEAD --pretty='format:[%ci] @%aN (%h) %s'"
+  register: git_changes
+
+- name: Build content
+  tags: ["always", "git"]
+  set_fact:
+    milestone_content: "{{ lookup('template', 'milestone_description.md.j2') }}"
+
+- tags: ["always", "git"]
+  debug:
+    var: milestone_content
+
+- name: Gitlab API | Update milestone
+  tags: ["always", "gitlab_api"]
+  uri:
+    <<: *gitlab_api_uri
+    url: "{{ gitlab.endpoint }}/projects/{{ project.id }}/milestones/{{ gitlab_project_milestones.json[0].id }}"
+    method: PUT
+    status_code: 200
+    body:
+      description: "{{ milestone_content }}"
+
+- tags: ["always", "git"]
+  debug:
+    msg: "Milestone updated: {{ gitlab_project_milestones.json[0].web_url }}"
