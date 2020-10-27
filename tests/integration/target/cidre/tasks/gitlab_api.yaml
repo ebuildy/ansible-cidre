@@ -1,0 +1,6 @@
+---
+
+- name: List projects
+  ebuildy.cidre.gitlab_api:
+    resource: projects
+    action: get

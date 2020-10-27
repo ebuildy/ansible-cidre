@@ -8,7 +8,7 @@
       method: GET
       body_format: json
       validate_certs: no
-      http_agent: "Keployr/cidre via Ansible v1.0.0"
+      http_agent: "{{ cidre.user_agent }}"
       status_code:
       - 200
       - 201
