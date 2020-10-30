@@ -1,0 +1,65 @@
+---
+- name: CI/CD management, via cidre.io
+  hosts: 127.0.0.1
+  connection: local
+  # remote_user: user
+  # become: yes
+  # become_method: sudo
+
+  # ansible-playbook ./cidre.yaml --tags "issue_create" -e 'issue_title="CI: integrate cidre"' -e issue_description="cidre"
+
+  vars:
+    git:
+      branches:
+        main: "master"
+        develop: "develop"
+        release: "release"
+
+    cidre_paths:
+      version: "./VERSION"
+
+    project:
+      id: 431
+      version: "{{ lookup('file', cidre_paths.version) }}"
+      version_wanted: "{{ lookup('env', 'VERSION_WANTED') }}"
+
+  tasks:
+  - tags: ["get_projects"]
+    block:
+    - name: get get_projects
+      community.cidre.gitlab_api:
+        resource: projects
+      register: get_projects
+    - debug:
+        var: get_projects
+
+  - tags: ["create"]
+    block:
+    - name: Create test project
+      community.cidre.gitlab_api:
+        resource: projects
+        data:
+          name: cidre-test
+          description: "Test ansible cidre collection"
+        action: create
+      register: get_projects
+    - debug:
+        var: get_projects
+
+  - tags: ["create"]
+    name: Create some issues
+    community.cidre.gitlab_api:
+      resource: issues
+      data:
+        title: Test create issue
+      action: create
+
+  - include_role:
+      name: cidre
+    tags:
+    - release_start
+    - release_end
+    - issue_create
+    - milestone_update
+    - change_log
+    - never

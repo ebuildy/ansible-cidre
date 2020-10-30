@@ -9,7 +9,7 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 
-module: cidre
+module: community.cidre.gitlab_api
 
 short_description: Call Gitlab HTTP API
 
@@ -98,19 +98,65 @@ result:
   type: complex
 '''
 
+import functools, os, json, datetime
+
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.basic import AnsibleModule
+from urllib.parse import urlencode
+
+def gitlab_api_get_http_method(resource, action):
+    d = {"get": "get", "create": "post", "update": "put", "delete": "delete"}
+    return d[action].upper()
+
+def urls_part_to_url(parts):
+    if len(parts) == 0:
+        return "/"
+    return "/" + functools.reduce(lambda a,b : a + "/" + b, parts)
+
+# Remove final "s" (issues -> issue)
+def gitlab_api_resource_to_context_item(resource):
+    return resource[:-1]
+
+def gitlab_api_build_url(endpoint, resource, context, query_string):
+
+    def release(context):
+        return ["projects", context["project"], "releases"]
+
+    urlParts = []
+
+    if "project" in context:
+        urlParts.append("projects")
+        urlParts.append(str(context["project"]))
+    elif "group" in context:
+        urlParts.append("groups")
+        urlParts.append(str(context["group"]))
+
+    urlParts.append(resource)
+
+    resource_item_name = gitlab_api_resource_to_context_item(resource)
+
+    if resource_item_name in context:
+        urlParts.append(str(context[resource_item_name]))
+
+    full_url = endpoint + urls_part_to_url(urlParts)
+
+    if len(query_string) > 0:
+        full_url += "?" + urlencode(query_string)
+
+    return full_url
+
 
 def run_module():
 
     module_args = dict(
-        endpoint=dict(type='str'),
-        access_token=dict(type='str'),
-        action=dict(type='list', elements='str', choices=['get', 'update', 'create', 'delete'], required=True),
-        resource=dict(type='str', required=True),
-        query_string=dict(type='raw'),
-        data=dict(type='raw'),
-        context=dict(type='raw')
+        endpoint=dict(type='str',default="https://gitlab.com/api/v4"),
+        access_token=dict(type='str', default=os.getenv('GITLAB_TOKEN')),
+        action=dict(type='str', choices=['get', 'update', 'create', 'delete'], default="get"),
+        resource=dict(type='str', choices=['projects', 'groups', 'issues', 'milestones'], required=True),
+        query_string=dict(type='raw', default={}),
+        data=dict(type='raw', default={}),
+        context=dict(type='raw', default={}),
+        body_format=dict(type='str', default='json')
     )
 
     module = AnsibleModule(
@@ -118,12 +164,64 @@ def run_module():
         supports_check_mode=True
     )
 
+    params = module.params
+
     if module.check_mode:
         module.exit_json(module.params)
 
-    fetch_url(module.params["endpoint"])
+    arg_endpoint = params.get("endpoint")
+    arg_access_token =  params.get("access_token")
+    arg_resource = params.get("resource")
+    arg_action = params.get("action")
+    arg_context = params.get("context")
+    arg_data = params.get("data")
+    arg_query_string = params.get("query_string")
 
-    module.exit_json(module.params)
+    http_method = gitlab_api_get_http_method(arg_resource, arg_action)
+    http_url = gitlab_api_build_url(arg_endpoint, arg_resource, arg_context, arg_query_string)
+    http_query_body = None
+
+    if arg_access_token is None or len(arg_access_token) == 0:
+        module.fail_json(msg="Missing access_token!")
+
+    start = datetime.datetime.utcnow()
+
+    if len(arg_data) > 0:
+        http_query_body = json.dumps(arg_data)
+
+    resp, info = fetch_url(
+        module,
+        http_url,
+        headers={"Content-Type" : "application/json", "Authorization" : "Bearer " + arg_access_token},
+        method=http_method,
+        data=http_query_body
+    )
+
+    try:
+        content = resp.read()
+    except AttributeError:
+        # there was no content, but the error read()
+        # may have been stored in the info as 'body'
+        content = info.pop('body', '')
+
+    http_response_status = int(info['status'])
+    http_content_data = json.loads(content)
+
+    if http_response_status >= 400 and http_response_status < 500:
+        if "error" in http_content_data:
+            error_str = http_content_data["error"]
+        else:
+            error_str = json.dumps(http_content_data)
+
+        module.fail_json(msg="Gitlab API error: [%s] %s" % (info['status'], error_str))
+
+    uresp = {
+        "url" : http_url,
+        "status" : http_response_status,
+        "elapsed" : (datetime.datetime.utcnow() - start).seconds
+    }
+
+    module.exit_json(content=http_content_data, **uresp)
 
 def main():
     run_module()

@@ -3,4 +3,18 @@
 - name: List projects
   community.cidre.gitlab_api:
     resource: projects
-    action: get
+
+- name: Create test project
+  community.cidre.gitlab_api:
+    resource: projects
+    data:
+      name: cidre-test
+      description: "Test ansible cidre collection"
+    action: create
+
+- name: Create some issues
+  community.cidre.gitlab_api:
+    resource: issues
+    data:
+      title: Test create issue
+    action: create
