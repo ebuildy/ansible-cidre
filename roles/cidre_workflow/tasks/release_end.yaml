@@ -9,7 +9,7 @@
     when: git_status.stdout != ""
 
 - set_fact:
-    git_branch: "{{ cidre.git.branches.release }}/{{ cidre.version.to }}"
+    git_branch: "{{ cidre.git.branches.release }}/{{ cidre.version.version }}"
 
 #- name: Check | git branch
 #  tags: ["always"]
@@ -25,32 +25,32 @@
   register: shell_git_branch
 
 # Check tag exist
-- shell: "git rev-parse --verify --quiet {{ cidre.version.to }} || true"
+- shell: "git rev-parse --verify --quiet {{ cidre.version.version }} || true"
   register: shell_git_tag
 
 - name: Merge branch into main
   when: shell_git_branch.stdout != ""
   shell: |
-    git switch {{ git.branches.main }}
+    git switch {{ cidre.git.branches.main }}
     git merge {{ git_branch }}
 
 - name: Merge main branch into develop
   when: shell_git_branch.stdout != ""
   shell: |
-    git switch {{ git.branches.develop }}
+    git switch {{ cidre.git.branches.develop }}
     git merge {{ git_branch }}
 
 - name: Create git tag from main branch
   when: shell_git_tag.stdout == ""
   shell: |
-    git switch {{ git.branches.main }}
+    git switch {{ cidre.git.branches.main }}
     git tag -a {{ cidre.version.current }} -m "{{ cidre.version.current }}: {{ cidre_milestone.web_url }}"
 
 - name: git push
   shell: "git push origin {{ item }}"
   with_items:
-  - "{{ git.branches.develop }}"
-  - "{{ git.branches.main }}"
+  - "{{ cidre.git.branches.develop }}"
+  - "{{ cidre.git.branches.main }}"
   - "{{ cidre.version.current }}"
 
 - name: Create gitlab release
