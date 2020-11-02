@@ -9,7 +9,7 @@
     when: git_status.stdout != ""
 
 - set_fact:
-    git_branch: "{{ cidre.git.branches.release }}/{{ cidre.version.version }}"
+    git_branch: "{{ cidre.git.branches.release }}/{{ cidre.version.current }}"
 
 #- name: Check | git branch
 #  tags: ["always"]
@@ -25,7 +25,7 @@
   register: shell_git_branch
 
 # Check tag exist
-- shell: "git rev-parse --verify --quiet {{ cidre.version.version }} || true"
+- shell: "git rev-parse --verify --quiet {{ cidre.version.current }} || true"
   register: shell_git_tag
 
 - name: Merge branch into main
