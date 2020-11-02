@@ -9,24 +9,29 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 
-module: community.cidre.gitlab_api
+module: community.cidre.platform
 
-short_description: Call Gitlab HTTP API
+short_description: Call Github or Gitlab HTTP API
 
 author:
   - "Thomas Decaux (@ebuildy)"
 
-description:
-  - Use the Gitlab Python API client.
-
 options:
+  platform:
+    description:
+    - gitlab / github
+    type: str
+    choices:
+    - github
+    - gitlab
+    - bitbucket
   endpoint:
     description:
-    - Full URL to API, default to https://gitlab.com/api/v4
+    - Full URL to API, default to public URL
     type: str
   access_token:
     description:
-    - access_token to use, default to env GITLAB_TOKEN
+    - access_token to use, default to env platform_TOKEN / GITLAB_TOKEN
     type: str
   resource:
     description:
@@ -67,8 +72,8 @@ requirements:
 
 EXAMPLES = r'''
 - name: Search a milestone
-  ebuildy.cidre.gitlab_api:
-    endpoint: "https://gitlab.mysupersite.com/api/v4"
+  ebuildy.cidre.platform:
+    platform: gitlab
     resource: milestones
     action: get
     context:
@@ -77,7 +82,8 @@ EXAMPLES = r'''
         title: "{{ project.version_wanted }}"
 
 - name: Create an issue
-  ebuildy.cidre.gitlab_api:
+  ebuildy.cidre.platform:
+    platform: gitlab
     resource: issues
     action: create
     context:
@@ -91,12 +97,15 @@ EXAMPLES = r'''
 RETURN = r'''
 result:
   description:
-  - The Gitlab API response.
+  - The platform API response.
   returned: success
   type: complex
 '''
 
-import functools, os, json, datetime
+import functools
+import os
+import json
+import datetime
 
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.basic import AnsibleModule
@@ -105,9 +114,30 @@ from ansible.utils.display import Display
 
 display = Display()
 
-def gitlab_api_get_http_method(resource, action):
+GITHUB = {
+    "DEFAULT_URL": "https://api.github.com",
+
+    "DEFAULT_HEADERS": {
+        "Content-Type" : "application/json",
+        "Accept" : "application/vnd.github.v3+json"
+    }
+
+}
+
+GITLAB = {
+    "DEFAULT_URL": "https://gitlab.com/api/v4",
+
+    "DEFAULT_HEADERS": {
+        "Content-Type" : "application/json"
+    }
+
+}
+
+
+
+def platform_api_get_http_method(resource, action):
     d = {"get": "get", "create": "post", "update": "put", "delete": "delete"}
-    return d[action].upper()
+    return d[action].upper() if action in d else ""
 
 def urls_part_to_url(parts):
     if len(parts) == 0:
@@ -115,10 +145,10 @@ def urls_part_to_url(parts):
     return "/" + functools.reduce(lambda a,b : a + "/" + b, parts)
 
 # Remove final "s" (issues -> issue)
-def gitlab_api_resource_to_context_item(resource):
+def platform_api_resource_to_context_item(resource):
     return resource[:-1]
 
-def gitlab_api_build_url(endpoint, resource, context, query_string):
+def platform_api_build_url(endpoint, resource, context, query_string):
 
     urlParts = []
 
@@ -131,11 +161,6 @@ def gitlab_api_build_url(endpoint, resource, context, query_string):
     if resource is not None and len(resource) > 0:
         urlParts.append(resource)
 
-#    resource_item_name = gitlab_api_resource_to_context_item(resource)
-
-#    if resource_item_name in context:
-#        urlParts.append(str(context[resource_item_name]))
-
     full_url = endpoint + urls_part_to_url(urlParts)
 
     if len(query_string) > 0:
@@ -147,8 +172,9 @@ def gitlab_api_build_url(endpoint, resource, context, query_string):
 def run_module():
 
     module_args = dict(
-        endpoint=dict(type='str',default=os.getenv('GITLAB_URL')),
-        access_token=dict(type='str', default=os.getenv('GITLAB_TOKEN')),
+        platform=dict(type='str', choices=['github', 'gitlab', 'bitbucket']),
+        endpoint=dict(type='str'),
+        access_token=dict(type='str'),
         action=dict(type='str', choices=['get', 'update', 'create', 'delete'], default="get"),
         resource=dict(type='str', choices=['projects', 'groups', 'issues', 'milestones']),
         query_string=dict(type='raw', default={}),
@@ -167,6 +193,7 @@ def run_module():
     if module.check_mode:
         module.exit_json(module.params)
 
+    arg_platform = params.get("platform")
     arg_endpoint = params.get("endpoint")
     arg_access_token =  params.get("access_token")
     arg_resource = params.get("resource")
@@ -175,15 +202,23 @@ def run_module():
     arg_data = params.get("data")
     arg_query_string = params.get("query_string")
 
-    if arg_endpoint is None or len(arg_endpoint) == 0:
-        arg_endpoint = "https://gitlab.com/api/v4"
+    if arg_platform == "gitlab":
+        platform = GITLAB
+    else:
+        platform = GITHUB
 
-    http_method = gitlab_api_get_http_method(arg_resource, arg_action)
-    http_url = gitlab_api_build_url(arg_endpoint, arg_resource, arg_context, arg_query_string)
+    if arg_endpoint is None or len(arg_endpoint) == 0:
+        arg_endpoint = platform["DEFAULT_URL"]
+
+    http_method = platform_api_get_http_method(arg_resource, arg_action)
+    http_url = platform_api_build_url(arg_endpoint, arg_resource, arg_context, arg_query_string)
     http_query_body = None
+    http_headers = platform["DEFAULT_HEADERS"]
 
     if arg_access_token is None or len(arg_access_token) == 0:
-        module.fail_json(msg="Missing access_token!")
+        display.vvv("Missing access_token!")
+    else:
+        http_headers["Authorization"] = "Bearer " + arg_access_token
 
     start = datetime.datetime.utcnow()
 
@@ -195,7 +230,7 @@ def run_module():
     resp, info = fetch_url(
         module,
         http_url,
-        headers={"Content-Type" : "application/json", "Authorization" : "Bearer " + arg_access_token},
+        headers=http_headers,
         method=http_method,
         data=http_query_body
     )
@@ -216,7 +251,7 @@ def run_module():
         else:
             error_str = json.dumps(http_content_data)
 
-        module.fail_json(msg="Gitlab API error: [%s] %s" % (info['status'], error_str))
+        module.fail_json(msg="Platform API error: [%s] %s" % (info['status'], error_str))
 
     uresp = {
         "url" : http_url,

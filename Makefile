@@ -31,18 +31,17 @@ test-molecule:
 	molecule test
 
 local/test-integration:
-	mkdir -p /tmp/ansible_collections/ebuildy/cidre
-	rm -r /tmp/ansible_collections/ebuildy/cidre/*
-	cp -r plugins tasks templates tests utils Makefile /tmp/ansible_collections/ebuildy/cidre/
-	cd /tmp/ansible_collections/ebuildy/cidre && \
-	ansible-test integration --docker -v --color --retry-on-error --python $(PYTHON_VERSION) --continue-on-error --diff --coverage $(?TEST_ARGS)
+	mkdir -p /tmp/ebuildy/cidre/t
+	rm -r /tmp/ebuildy/cidre/*
+	cp -r plugins roles tests utils Makefile /tmp/ebuildy/cidre/
+	ansible-test integration --no-temp-workdir --color --retry-on-error --python $(PYTHON_VERSION) --continue-on-error --diff $(?TEST_ARGS)
 
 local/test-units:
 	mkdir -p /tmp/ansible_collections/ebuildy/cidre
 	rm -r /tmp/ansible_collections/ebuildy/cidre/*
-	cp -r plugins tasks templates tests utils Makefile /tmp/ansible_collections/ebuildy/cidre/
+	cp -r plugins tests utils Makefile /tmp/ansible_collections/ebuildy/cidre/
 	cd /tmp/ansible_collections/ebuildy/cidre && \
-	ansible-test units --docker --python 3.8 -v --color
+	ansible-test units --python 3.8 -v --color
 
 
 downstream-test-sanity:

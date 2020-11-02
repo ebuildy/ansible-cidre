@@ -1,0 +1,30 @@
+---
+
+- name: Info
+  tags: ["never", "info"]
+  import_tasks:
+    file: info.yaml
+
+- name: Start release
+  include_role:
+    name: cidre
+    tasks_from: release_start
+  tags: ["release_start", "never"]
+
+- name: Create issue
+  include_role:
+    name: cidre
+    tasks_from: issue_create
+  tags: ["issue_create", "never"]
+
+- name: Update milestone
+  include_role:
+    name: cidre
+    tasks_from: milestone_update
+  tags: ["milestone_update", "never"]
+
+- name: Finish release
+  include_role:
+    name: cidre
+    tasks_from: release_end
+  tags: ["release_end", "never"]

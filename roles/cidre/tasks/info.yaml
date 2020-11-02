@@ -1,0 +1,23 @@
+---
+
+- debug:
+    msg: "Current version = {{ cidre.version.current }}"
+
+- block:
+  - community.cidre.platform:
+      platform: "{{ cidre.project.platform }}"
+      context:
+        repo: "{{ cidre.project.id }}"
+    register: g_project
+  - debug:
+      var: g_project
+
+- block:
+  - community.cidre.platform:
+      platform: "{{ cidre.project.platform }}"
+      context:
+        repo: "{{ cidre.project.id }}"
+      resource: milestones
+    register: g_project
+  - debug:
+      var: g_project

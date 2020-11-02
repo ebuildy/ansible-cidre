@@ -8,7 +8,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = """
-    name: gitlab_project
+    name: gitlab_repo
     author: Thomas Decaux
     version_added: "0.1.0"
     short_description: get project ID via name
@@ -25,7 +25,7 @@ DOCUMENTATION = """
 
 EXAMPLES = """
 - name: Display test-cidre project ID
-  debug: msg={{ lookup('community.cidre.gitlab_project', 'test-cidre') }}
+  debug: msg={{ lookup('community.cidre.gitlab_repo', 'test-cidre') }}
 """
 
 RETURN = """
