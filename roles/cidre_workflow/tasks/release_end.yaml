@@ -1,37 +1,14 @@
 ---
 
-- name: Get milestone
-  tags: ["always", "gitlab_milestone"]
-  block:
-  - name: Gitlab API > Get milestone
-    uri: &gitlab_api_uri
-      url: "{{ gitlab.endpoint }}/projects/{{ project.id }}/milestones?title={{ project.version }}"
-      method: GET
-      body_format: json
-      validate_certs: no
-      http_agent: "Keployr/cidre via Ansible v1.0.0"
-      status_code:
-      - 200
-      - 201
-      headers:
-          Content-Type: application/json
-          Authorization: Bearer {{ gitlab.access_token }}
-    register: gitlab_project_milestones
-  - when: gitlab_project_milestones.x_total == "0"
-    fail:
-      msg: "milestone '{{ project.version }}' dont exist!"
-
 - name: Check | git commits
-  tags: ["always"]
   block:
   - shell: "git status --porcelain"
     register: git_status
   - fail:
-      msg: "Please clean git status: {{ git_status.stdout }}"
+      msg: "Please commit all changes: {{ git_status.stdout }}"
     when: git_status.stdout != ""
 
-- tags: ["always"]
-  set_fact:
+- set_fact:
     git_branch: "{{ git.branches.release }}/{{ project.version }}"
 
 #- name: Check | git branch
@@ -45,33 +22,31 @@
 
 # Check branch exist (or not, this not required)
 - shell: "git rev-parse --verify --quiet {{ git_branch }} || true"
-  tags: ["always"]
   register: shell_git_branch
 
 # Check tag exist
 - shell: "git rev-parse --verify --quiet {{ project.version }} || true"
-  tags: ["always"]
   register: shell_git_tag
 
-- name: Merge branch into develop & main
-  tags: ["always", "git_merge"]
+- name: Merge branch into main
   when: shell_git_branch.stdout != ""
   shell: |
-    git checkout {{ item }}
+    git switch {{ git.branches.main }}
     git merge {{ git_branch }}
-  with_items:
-  - "{{ git.branches.develop }}"
-  - "{{ git.branches.main }}"
 
-- name: git tag
-  tags: ["always", "git_tag"]
+- name: Merge main branch into develop
+  when: shell_git_branch.stdout != ""
+  shell: |
+    git switch {{ git.branches.develop }}
+    git merge {{ git_branch }}
+
+- name: Create git tag from main branch
   when: shell_git_tag.stdout == ""
   shell: |
-    git checkout {{ git.branches.main }}
-    git tag -a {{ project.version }} -m "{{ project.version }}: {{ gitlab_project_milestones.json[0].web_url }}"
+    git switch {{ git.branches.main }}
+    git tag -a {{ project.version.current }} -m "{{ project.version.current }}: {{ cidre_milestone.web_url }}"
 
 - name: git push
-  tags: ["always", "git_push"]
   shell: "git push origin {{ item }}"
   with_items:
   - "{{ git.branches.develop }}"
@@ -79,25 +54,22 @@
   - "{{ project.version }}"
 
 - name: Create gitlab release
-  tags: ["always", "gitlab_release"]
   block:
-  - uri:
-      <<: *gitlab_api_uri
-      url: "{{ gitlab.endpoint }}/projects/{{ project.id }}/releases"
-      method: POST
-      body:
-        name: "{{ project.version }}"
-        tag_name: "{{ project.version }}"
-        description: "{{ gitlab_project_milestones.json[0].description }}"
-        milestones: ["{{ project.version }}"]
-      status_code: [200, 201]
-    register: gitlab_issue
+  - community.cidre.platform:
+      platform: "{{ cidre.project.platform }}"
+      context:
+        repo: "{{ cidre.project.id }}"
+      action: create
+      resource: releases
+      data:
+        name: "{{ project.version.to }}"
+        tag_name: "{{ project.version.to }}"
+        description: "{{ cidre_milestone.description }}"
+    register: g_release
   - debug:
-      #var: gitlab_issue
-      msg: "Release created!"
+      msg: "Release created: {{ g_release.content.html_url }}"
 
 - name: Delete local and remote release branch
-  tags: ["always", "git_delete_branch"]
   shell: |
     git branch -D {{ git_branch }}
     git push -d origin {{ git_branch }}

@@ -12,8 +12,15 @@
   register: platform_issues
 
 - name: Git change log
-  shell:
-    cmd: "git log $(git describe --tags --abbrev=0)..HEAD --pretty='format:[%ci] @%aN (%h) %s'"
+  shell: |
+    if [ $(git tag | wc -l) -g 0 ]
+    then
+      git log $(git describe --tags --abbrev=0)..HEAD --pretty='format:[%ci] @%aN (%h) %s'
+    else
+      git log --pretty='format:[%ci] @%aN (%h) %s'
+    fi
+
+    exit 0
   register: git_changes
 
 - name: Build content

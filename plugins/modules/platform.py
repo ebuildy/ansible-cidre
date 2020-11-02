@@ -122,7 +122,7 @@ GITHUB = {
         "token" : "GITHUB_TOKEN"
     },
 
-    "http_methods" : {"get": "get", "create": "post", "update": "put", "delete": "delete"},
+    "http_methods" : {"get": "get", "create": "post", "update": "patch", "delete": "delete"},
 
     "DEFAULT_HEADERS": {
         "Content-Type" : "application/json",
@@ -141,7 +141,7 @@ GITLAB = {
         "token" : "GITLAB_TOKEN"
     },
 
-    "http_methods" : {"get": "get", "create": "post", "update": "patch", "delete": "delete"},
+    "http_methods" : {"get": "get", "create": "post", "update": "put", "delete": "delete"},
 
     "DEFAULT_HEADERS": {
         "Content-Type" : "application/json"
