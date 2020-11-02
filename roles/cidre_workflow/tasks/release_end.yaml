@@ -9,7 +9,7 @@
     when: git_status.stdout != ""
 
 - set_fact:
-    git_branch: "{{ cidre.git.branches.release }}/{{ project.version }}"
+    git_branch: "{{ cidre.git.branches.release }}/{{ cidre.version.to }}"
 
 #- name: Check | git branch
 #  tags: ["always"]
@@ -25,7 +25,7 @@
   register: shell_git_branch
 
 # Check tag exist
-- shell: "git rev-parse --verify --quiet {{ project.version }} || true"
+- shell: "git rev-parse --verify --quiet {{ cidre.version.to }} || true"
   register: shell_git_tag
 
 - name: Merge branch into main
@@ -44,14 +44,14 @@
   when: shell_git_tag.stdout == ""
   shell: |
     git switch {{ git.branches.main }}
-    git tag -a {{ project.version.current }} -m "{{ project.version.current }}: {{ cidre_milestone.web_url }}"
+    git tag -a {{ cidre.version.current }} -m "{{ cidre.version.current }}: {{ cidre_milestone.web_url }}"
 
 - name: git push
   shell: "git push origin {{ item }}"
   with_items:
   - "{{ git.branches.develop }}"
   - "{{ git.branches.main }}"
-  - "{{ project.version }}"
+  - "{{ cidre.version.current }}"
 
 - name: Create gitlab release
   block:
@@ -62,8 +62,8 @@
       action: create
       resource: releases
       data:
-        name: "{{ project.version.to }}"
-        tag_name: "{{ project.version.to }}"
+        name: "{{ cidre.version.current }}"
+        tag_name: "{{ cidre.version.current }}"
         description: "{{ cidre_milestone.description }}"
     register: g_release
   - debug:
