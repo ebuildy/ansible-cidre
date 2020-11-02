@@ -18,58 +18,32 @@ As a (lazy) good dev, I want to automate everything (so I can spend more time in
   connection: local
 
   vars:
-    git:
-      branches:
-        main: "master"
-        develop: "develop"
-        release: "release"
+    cidre:
+      git:
+        branches:
+          main: "master"
+          develop: "develop"
+          release: "release"
+      project:
+        id: ebuildy/ansible-cidre
+        platform: github
+      version:
+        file: './VERSION'
+        current: "{{ lookup('file', './VERSION') | default('v0.1.0') }}"
+        to: "{{ cidre_version_to }}"
 
-    cidre_paths:
-      version: "./VERSION"
-
-    project:
-      id: 431
-      version: "{{ lookup('file', cidre_paths.version) }}"
-      version_wanted: "{{ lookup('env', 'VERSION_WANTED') }}"
-
-    gitlab:
-      endpoint: https://XXXXX/api/v4
-      access_token: "{{ lookup('env', 'GITLAB_ACCESS_TOKEN') }}"
-      username: "{{ lookup('env', 'GITLAB_LOGIN') }}"
-
-    tags:
-    - release_start
-    - release_end
-    - issue_create
-    - milestone_update
-    - change_log
-    - build
-
-
-  tasks:
-  # Include cidre tasks
-  - include_role:
-      name: cidre
-    tags:
-    - release_start
-    - release_end
-    - issue_create
-    - milestone_update
-    - change_log
-    - never
-
-  # Exemple of build a Java progam with Gradle
-  - name: Build app
-    shell: "gradle -Prelease.version={{ project.version }} clean djobiAssemble -x test"
-    tags: ["build", "never"]
-
+  roles:
+  - cidre_workflow
 ```
 
 Then, execute playbook:
 
 ```
+# Get info
+ansible-playbook ./cidre.yaml --tags cidre_info
+
 # Start a release
-VERSION_WANTED=v4.4.0 ansible-playbook ./cidre.yaml --tags "release_start"
+ansible-playbook ./cidre.yaml -e "cidre_version_to=v0.1.0" --tags cidre_release_start
 
 # Create new issue
 ansible-playbook ./cidre.yaml --tags "issue_create" -e 'issue_title="CI: integrate cidre"' -e issue_description="cidre"

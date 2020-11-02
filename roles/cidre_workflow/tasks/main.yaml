@@ -1,15 +1,14 @@
 ---
 
 - name: Info
-  tags: ["never", "info"]
+  tags: ["never", "cidre_info"]
   import_tasks:
     file: info.yaml
 
 - name: Start release
-  include_role:
-    name: cidre
-    tasks_from: release_start
-  tags: ["release_start", "never"]
+  import_tasks:
+    file: release_start.yaml
+  tags: ["cidre_release_start", "never"]
 
 - name: Create issue
   include_role:

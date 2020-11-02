@@ -21,7 +21,7 @@
       version:
         file: './VERSION'
         current: "{{ lookup('file', './VERSION') | default('v0.1.0') }}"
-        to: "{{ lookup('env', 'VERSION_WANTED') }}"
+        to: "{{ cidre_version_to }}"
 
   roles:
-  - community.cidre.cidre
+  - cidre_workflow
