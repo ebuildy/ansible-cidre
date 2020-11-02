@@ -8,6 +8,7 @@
       repo: "{{ cidre.project.id }}"
     query_string:
       milestone: "{{ cidre_milestone.number }}"
+      state: all
   register: platform_issues
 
 - name: Git change log
@@ -17,7 +18,7 @@
 
 - name: Build content
   set_fact:
-    milestone_content: "{{ lookup('template', cidre.project.platform + '_milestone_description.md.j2') }}"
+    milestone_content: "{{ lookup('template', cidre.project.platform + '_milestone_body.md.j2') }}"
 
 - name: Gitlab API | Update milestone
   community.cidre.platform:

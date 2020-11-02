@@ -122,6 +122,8 @@ GITHUB = {
         "token" : "GITHUB_TOKEN"
     },
 
+    "http_methods" : {"get": "get", "create": "post", "update": "put", "delete": "delete"},
+
     "DEFAULT_HEADERS": {
         "Content-Type" : "application/json",
         "Accept" : "application/vnd.github.v3+json"
@@ -139,6 +141,8 @@ GITLAB = {
         "token" : "GITLAB_TOKEN"
     },
 
+    "http_methods" : {"get": "get", "create": "post", "update": "patch", "delete": "delete"},
+
     "DEFAULT_HEADERS": {
         "Content-Type" : "application/json"
     },
@@ -146,12 +150,6 @@ GITLAB = {
     "AUTH_HEADER": "Bearer"
 
 }
-
-
-
-def platform_api_get_http_method(resource, action):
-    d = {"get": "get", "create": "post", "update": "put", "delete": "delete"}
-    return d[action].upper() if action in d else ""
 
 def urls_part_to_url(parts):
     if len(parts) == 0:
@@ -227,7 +225,7 @@ def run_module():
         else:
             arg_endpoint = platform["DEFAULT_URL"]
 
-    http_method = platform_api_get_http_method(arg_resource, arg_action)
+    http_method = platform['http_methods'][arg_action]
     http_url = platform_api_build_url(arg_endpoint, arg_resource, arg_context, arg_query_string)
     http_query_body = None
     http_headers = platform["DEFAULT_HEADERS"]

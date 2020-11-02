@@ -33,10 +33,10 @@
 
 
 - name: Update milestone
-  include_role:
-    name: cidre
-    tasks_from: cidre_milestone_update
-  tags: ["milestone_update", "never"]
+  tags: ["cidre_milestone_update", "never"]
+  block:
+  - include_tasks:
+      file: milestone_update.yaml
 
 - name: Finish release
   include_role:
