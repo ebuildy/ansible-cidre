@@ -9,7 +9,7 @@
     when: git_status.stdout != ""
 
 - set_fact:
-    git_branch: "{{ git.branches.release }}/{{ project.version }}"
+    git_branch: "{{ cidre.git.branches.release }}/{{ project.version }}"
 
 #- name: Check | git branch
 #  tags: ["always"]
