@@ -9,6 +9,7 @@
 
 - name: Git | create release branch
   shell: "git checkout -b {{ cidre.git.branches.release }}/{{ cidre.version.to }}"
+  ignore_errors: yes
 
 - name: "Write into {{ cidre.version.file }}"
   tags: ["always", "version_write"]
