@@ -21,6 +21,9 @@ install: build
 test-sanity:
 	ansible-test sanity --docker -v --color --python $(PYTHON_VERSION) $(?TEST_ARGS)
 
+test-unit:
+	ansible-test units --docker -v --color --python $(PYTHON_VERSION)
+
 test-integration:
 	ansible-test integration --docker -v --color --retry-on-error --python $(PYTHON_VERSION) --continue-on-error --diff --coverage $(?TEST_ARGS)
 

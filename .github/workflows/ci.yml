@@ -51,6 +51,10 @@ jobs:
       - name: Install ansible base (devel branch)
         run: pip install https://github.com/ansible/ansible/archive/devel.tar.gz --disable-pip-version-check
 
+      - name: Run unit tests on Python ${{ matrix.python_version }}
+        run: make test-unit PYTHON_VERSION=${{ matrix.python_version }}
+        working-directory: ./ansible_collections/community/cidre
+
       - name: Run integration tests on Python ${{ matrix.python_version }}
         run: make test-integration PYTHON_VERSION=${{ matrix.python_version }}
         working-directory: ./ansible_collections/community/cidre

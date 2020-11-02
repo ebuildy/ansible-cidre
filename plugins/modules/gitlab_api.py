@@ -31,8 +31,7 @@ options:
   resource:
     description:
     - Query string
-    type: list
-    elements: str
+    type: str
     choices:
     - projects
     - milestones
@@ -41,8 +40,7 @@ options:
   action:
     description:
     - HTTP method
-    type: list
-    elements: str
+    type: str
     choices:
     - get
     - update
@@ -102,7 +100,10 @@ import functools, os, json, datetime
 
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.basic import AnsibleModule
-from urllib.parse import urlencode
+from ansible.module_utils.six.moves.urllib.parse import urlencode
+from ansible.utils.display import Display
+
+display = Display()
 
 def gitlab_api_get_http_method(resource, action):
     d = {"get": "get", "create": "post", "update": "put", "delete": "delete"}
@@ -119,24 +120,21 @@ def gitlab_api_resource_to_context_item(resource):
 
 def gitlab_api_build_url(endpoint, resource, context, query_string):
 
-    def release(context):
-        return ["projects", context["project"], "releases"]
-
     urlParts = []
 
-    if "project" in context:
-        urlParts.append("projects")
-        urlParts.append(str(context["project"]))
-    elif "group" in context:
-        urlParts.append("groups")
-        urlParts.append(str(context["group"]))
+    for c_name, c_value in context.items():
+        r = c_name + "s"
 
-    urlParts.append(resource)
+        urlParts.append(r)
+        urlParts.append(str(c_value))
 
-    resource_item_name = gitlab_api_resource_to_context_item(resource)
+    if resource is not None and len(resource) > 0:
+        urlParts.append(resource)
 
-    if resource_item_name in context:
-        urlParts.append(str(context[resource_item_name]))
+#    resource_item_name = gitlab_api_resource_to_context_item(resource)
+
+#    if resource_item_name in context:
+#        urlParts.append(str(context[resource_item_name]))
 
     full_url = endpoint + urls_part_to_url(urlParts)
 
@@ -149,10 +147,10 @@ def gitlab_api_build_url(endpoint, resource, context, query_string):
 def run_module():
 
     module_args = dict(
-        endpoint=dict(type='str',default="https://gitlab.com/api/v4"),
+        endpoint=dict(type='str',default=os.getenv('GITLAB_URL')),
         access_token=dict(type='str', default=os.getenv('GITLAB_TOKEN')),
         action=dict(type='str', choices=['get', 'update', 'create', 'delete'], default="get"),
-        resource=dict(type='str', choices=['projects', 'groups', 'issues', 'milestones'], required=True),
+        resource=dict(type='str', choices=['projects', 'groups', 'issues', 'milestones']),
         query_string=dict(type='raw', default={}),
         data=dict(type='raw', default={}),
         context=dict(type='raw', default={}),
@@ -177,6 +175,9 @@ def run_module():
     arg_data = params.get("data")
     arg_query_string = params.get("query_string")
 
+    if arg_endpoint is None or len(arg_endpoint) == 0:
+        arg_endpoint = "https://gitlab.com/api/v4"
+
     http_method = gitlab_api_get_http_method(arg_resource, arg_action)
     http_url = gitlab_api_build_url(arg_endpoint, arg_resource, arg_context, arg_query_string)
     http_query_body = None
@@ -188,6 +189,8 @@ def run_module():
 
     if len(arg_data) > 0:
         http_query_body = json.dumps(arg_data)
+
+    display.v(http_url)
 
     resp, info = fetch_url(
         module,
