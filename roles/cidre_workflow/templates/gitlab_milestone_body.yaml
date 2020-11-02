@@ -1,6 +1,6 @@
 ## Issues:
 
-{% for issue in gitlab_issues.json %}
+{% for issue in platform_issues.content %}
 * \#{{ issue.id }} {{ issue.title }} @{{ issue.author.name }} - {{ issue.web_url }}
 {% endfor %}
 

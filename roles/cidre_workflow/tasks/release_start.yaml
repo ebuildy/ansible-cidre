@@ -1,5 +1,6 @@
 ---
 - name: Bootstrap checks
+  when: no
   block:
   - shell: "git status --porcelain"
     register: git_status
@@ -25,6 +26,7 @@
   block:
   - name: create milestone
     community.cidre.platform:
+      platform: "{{ cidre.project.platform }}"
       action: create
       context:
         repo: "{{ cidre.project.id }}"
@@ -38,6 +40,7 @@
   block:
   - name: create milestone
     community.cidre.platform:
+      platform: "{{ cidre.project.platform }}"
       action: create
       context:
         project: "{{ cidre.project.id }}"

@@ -1,25 +1,41 @@
 ---
 
+- name: Get current milestone
+  tags:
+  - never
+  - cidre_info
+  - cidre_release_start
+  - cidre_release_end
+  - cidre_milestone_update
+  - cidre_issue_create
+  set_fact:
+    cidre_milestone: "{{ lookup('community.cidre.milestone', cidre.version.current, repo=cidre.project.id, platform=cidre.project.platform) }}"
+
 - name: Info
   tags: ["never", "cidre_info"]
-  import_tasks:
-    file: info.yaml
+  block:
+  - include_tasks:
+      file: info.yaml
 
 - name: Start release
-  import_tasks:
-    file: release_start.yaml
   tags: ["cidre_release_start", "never"]
+  when: cidre.version.to != ''
+  block:
+  - include_tasks:
+      file: release_start.yaml
 
 - name: Create issue
-  include_role:
-    name: cidre
-    tasks_from: issue_create
-  tags: ["issue_create", "never"]
+  tags: ["cidre_issue_create", "never"]
+  when: issue_title is defined
+  block:
+  - include_tasks:
+      file: issue_create.yaml
+
 
 - name: Update milestone
   include_role:
     name: cidre
-    tasks_from: milestone_update
+    tasks_from: cidre_milestone_update
   tags: ["milestone_update", "never"]
 
 - name: Finish release

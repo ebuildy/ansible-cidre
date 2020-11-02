@@ -117,19 +117,33 @@ display = Display()
 GITHUB = {
     "DEFAULT_URL": "https://api.github.com",
 
+    "env" : {
+        "url" : "GITHUB_URL",
+        "token" : "GITHUB_TOKEN"
+    },
+
     "DEFAULT_HEADERS": {
         "Content-Type" : "application/json",
         "Accept" : "application/vnd.github.v3+json"
-    }
+    },
+
+    "AUTH_HEADER": "token"
 
 }
 
 GITLAB = {
     "DEFAULT_URL": "https://gitlab.com/api/v4",
 
+    "env" : {
+        "url" : "GITLAB_URL",
+        "token" : "GITLAB_TOKEN"
+    },
+
     "DEFAULT_HEADERS": {
         "Content-Type" : "application/json"
-    }
+    },
+
+    "AUTH_HEADER": "Bearer"
 
 }
 
@@ -208,7 +222,10 @@ def run_module():
         platform = GITHUB
 
     if arg_endpoint is None or len(arg_endpoint) == 0:
-        arg_endpoint = platform["DEFAULT_URL"]
+        if platform['env']['url'] in os.environ:
+            arg_access_token = os.environ[platform['env']['url']]
+        else:
+            arg_endpoint = platform["DEFAULT_URL"]
 
     http_method = platform_api_get_http_method(arg_resource, arg_action)
     http_url = platform_api_build_url(arg_endpoint, arg_resource, arg_context, arg_query_string)
@@ -216,9 +233,13 @@ def run_module():
     http_headers = platform["DEFAULT_HEADERS"]
 
     if arg_access_token is None or len(arg_access_token) == 0:
-        display.vvv("Missing access_token!")
-    else:
-        http_headers["Authorization"] = "Bearer " + arg_access_token
+        if platform['env']['token'] in os.environ:
+            arg_access_token = os.environ[platform['env']['token']]
+        else:
+            display.vv("Missing access_token!")
+
+    if len(arg_access_token) > 0:
+        http_headers["Authorization"] = "%s %s" % (platform['AUTH_HEADER'], arg_access_token)
 
     start = datetime.datetime.utcnow()
 
@@ -246,12 +267,7 @@ def run_module():
     http_content_data = json.loads(content)
 
     if http_response_status >= 400 and http_response_status < 500:
-        if "error" in http_content_data:
-            error_str = http_content_data["error"]
-        else:
-            error_str = json.dumps(http_content_data)
-
-        module.fail_json(msg="Platform API error: [%s] %s" % (info['status'], error_str))
+        module.fail_json(msg="Platform error [%s] when calling %s : %s" % (info['status'], http_url, content))
 
     uresp = {
         "url" : http_url,

@@ -3,6 +3,9 @@
 - debug:
     msg: "Current version = {{ cidre.version.current }}"
 
+- debug:
+    msg: "Current milestone = {{ cidre_milestone.id }}"
+
 - block:
   - community.cidre.platform:
       platform: "{{ cidre.project.platform }}"

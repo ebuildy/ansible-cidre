@@ -1,39 +1,38 @@
 ---
-- name: Get milestone
-  tags: ["always", "gitlab_milestone"]
-  block:
-  - name: Gitlab API > Get milestone
-    uri: &gitlab_api_uri
-      url: "{{ gitlab.endpoint }}/projects/{{ project.id }}/milestones?title={{ project.version }}"
-      method: GET
-      body_format: json
-      validate_certs: no
-      http_agent: "{{ cidre.user_agent }}"
-      status_code:
-      - 200
-      - 201
-      headers:
-          Content-Type: application/json
-          Authorization: Bearer {{ gitlab.access_token }}
-    register: gitlab_project_milestones
-  - when: gitlab_project_milestones.x_total == "0"
-    fail:
-      msg: "milestone '{{ project.version }}' dont exist!"
 
 - name: create issue
-  tags: ["always", "gitlab_api"]
+  when: cidre.project.platform == "github"
+  block:
+  - name: Github API > Create issue
+    community.cidre.platform:
+      platform: "{{ cidre.project.platform }}"
+      context:
+        repo: "{{ cidre.project.id }}"
+      action: create
+      resource: issues
+      data:
+        title: "{{ issue_title }}"
+        body: "{{ issue_description | default('') }}"
+        milestone: "{{ cidre_milestone.number }}"
+    register: g_issue
+  - debug:
+      msg: "Issue created! {{ g_issue.content.html_url }}"
+
+- name: create issue
+  when: cidre.project.platform == "gitlab"
   block:
   - name: Gitlab API > Create issue
-    uri:
-      <<: *gitlab_api_uri
-      url: "{{ gitlab.endpoint }}/projects/{{ project.id }}/issues"
-      method: POST
-      body:
+    community.cidre.platform:
+      platform: "{{ cidre.project.platform }}"
+      context:
+        repo: "{{ cidre.project.id }}"
+      action: create
+      resource: issues
+      data:
         title: "{{ issue_title }}"
         description: "{{ issue_description }}"
-        milestone_id: "{{ gitlab_project_milestones.json[0].id }}"
-      status_code: 201
-    register: gitlab_issue
+        milestone_id: "{{ cidre_milestone.id }}"
+    register: g_issue
   - debug:
       #var: gitlab_issue
-      msg: "Issue created! {{ gitlab_issue.json.web_url }}"
+      msg: "Issue created! {{ g_issue.content.web_url }}"
