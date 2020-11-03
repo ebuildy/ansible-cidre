@@ -29,6 +29,9 @@
   - ansible.builtin.template:
       src: "changelog.md.j2"
       dest: "{{ cidre.changelog.file }}"
+  - shell: |
+      git add {{ cidre.changelog.file }}
+      git commit {{ cidre.changelog.file }} -m "Edit changelog"
 
 - name: List issues
   community.cidre.platform:

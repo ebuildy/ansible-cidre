@@ -18,7 +18,9 @@
   - copy:
       content: "{{ cidre.version.to }}"
       dest: "{{ cidre.version.file }}"
-  - shell: "git commit {{ cidre.version.file }} -m \"Bump version to {{ cidre.version.to }}\" "
+  - shell: |
+      git add {{ cidre.version.file }}
+      git commit {{ cidre.version.file }} -m "Bump version to {{ cidre.version.to }}"
   when: cidre.version.to != cidre.version.current
 
 - name: Get or create milestone
