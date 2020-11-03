@@ -12,7 +12,7 @@
     cidre:
       git:
         branches:
-          main: "master"
+          main: "main"
           develop: "develop"
           release: "release"
       project:

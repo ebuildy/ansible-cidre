@@ -53,7 +53,8 @@
   - "{{ cidre.git.branches.main }}"
   - "{{ cidre.version.current }}"
 
-- name: Create gitlab release
+- name: Create Github release
+  when: cidre.project.platform == "github"
   block:
   - community.cidre.platform:
       platform: "{{ cidre.project.platform }}"
@@ -68,6 +69,24 @@
     register: g_release
   - debug:
       msg: "Release created: {{ g_release.content.html_url }}"
+
+- name: Create Gitlab release
+  when: cidre.project.platform == "gitlab"
+  block:
+  - community.cidre.platform:
+      platform: "{{ cidre.project.platform }}"
+      context:
+        repo: "{{ cidre.project.id }}"
+      action: create
+      resource: releases
+      data:
+        name: "{{ cidre.version.current }}"
+        tag_name: "{{ cidre.version.current }}"
+        description: "{{ cidre_milestone.description }}"
+        milestone: "{{ cidre_milestone.id }}"
+    register: g_release
+  - debug:
+      msg: "Release created: {{ g_release.content.web_url }}"
 
 - name: Delete local and remote release branch
   shell: |

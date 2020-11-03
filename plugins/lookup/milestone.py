@@ -102,6 +102,11 @@ class LookupModule(LookupBase):
 
                 for i in response_data:
                     if i['title'] == term:
+                        # Fix vendor fields
+                        if arg_platform == 'github':
+                            i['web_url'] = i['html_url']
+                            i['id'] = i['number']
+
                         ret.append(i)
 
             except HTTPError as e:
