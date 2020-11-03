@@ -48,9 +48,7 @@
       content: "{{ cidre_version_to }}"
       dest: "{{ cidre.version.file }}"
   - shell: |
-      git add {{ cidre.version.file }}
       git commit {{ cidre.version.file }} -m "Bump version to {{ cidre_version_to }}"
-  when: cidre_version_to != cidre.version.current
 
 - name: Get or create milestone
   when: cidre.project.platform == 'github'
