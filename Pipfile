@@ -6,6 +6,10 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
+ansible = "*"
+pytest = "*"
+ansible-test = "*"
+pytest-xdist = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "2.7"

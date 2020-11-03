@@ -1,0 +1,17 @@
+---
+
+- name: List projects
+  community.cidre.platform:
+    platform: github
+    access_token: ""
+    context:
+      user: ebuildy
+    resource: repos
+
+- name: Get 1st cidre milestone
+  set_fact:
+    g_first_milestone: "{{ lookup('community.cidre.milestone', 'v0.1.0', repo='ebuildy/ansible-cidre', platform='github') }}"
+
+- when: g_first_milestone.id != 'v0.1.0'
+  fail:
+    msg: Wrong milestone!

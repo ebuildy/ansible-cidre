@@ -9,11 +9,6 @@ import sys, os
 from ansible.module_utils import basic
 from ansible_collections.community.cidre.plugins.modules import platform
 
-def test_gitlab_api_get_http_method():
-    f = platform.platform_api_get_http_method
-    assert f("projects", "create") == "POST"
-    assert f("projects", "update") == "PUT"
-
 def test_urls_part_to_url():
     f = platform.urls_part_to_url
 

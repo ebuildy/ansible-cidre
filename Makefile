@@ -4,6 +4,8 @@ VERSION = 0.1.0
 TEST_ARGS ?= ""
 PYTHON_VERSION ?= `python -c 'import platform; print("{0}.{1}".format(platform.python_version_tuple()[0], platform.python_version_tuple()[1]))'`
 
+TEST_FOLDER ?= .test/ansible_collections/community/cidre
+
 clean:
 	rm -f community-cidre-${VERSION}.tar.gz
 	rm -rf ansible_collections
@@ -37,12 +39,7 @@ local/test-integration:
 	ansible-test integration --no-temp-workdir --color --retry-on-error --python $(PYTHON_VERSION) --continue-on-error --diff $(?TEST_ARGS)
 
 local/test-units:
-	mkdir -p /tmp/ansible_collections/ebuildy/cidre
-	rm -r /tmp/ansible_collections/ebuildy/cidre/*
-	cp -r plugins tests utils Makefile /tmp/ansible_collections/ebuildy/cidre/
-	cd /tmp/ansible_collections/ebuildy/cidre && \
-	ansible-test units --python 3.8 -v --color
-
+	ansible-test units --python 2.7
 
 downstream-test-sanity:
 	./utils/downstream.sh -s
