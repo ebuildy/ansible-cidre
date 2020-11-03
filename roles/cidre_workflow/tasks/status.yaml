@@ -1,0 +1,21 @@
+---
+
+- debug:
+    msg: "Current version = {{ cidre.version.current }}, milestone = {{ cidre_milestone.title }} - {{ cidre_milestone.web_url }}"
+
+- name: List issues
+  community.cidre.platform:
+    platform: "{{ cidre.project.platform }}"
+    resource: issues
+    context:
+      repo: "{{ cidre.project.id }}"
+    query_string:
+      milestone: "{{ cidre_milestone.id }}"
+      state: open
+  register: platform_issues
+
+- loop: "{{ platform_issues.content }}"
+  loop_control:
+    label: ""
+  debug:
+    msg: "#{{ item.number | default(item.id) }} - {{ item.title }}"

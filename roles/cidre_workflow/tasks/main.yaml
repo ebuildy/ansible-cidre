@@ -4,12 +4,10 @@
   tags:
   - never
   - cidre_init
-  - cidre_info
   - cidre_release_start
   - cidre_release_end
   - cidre_changelog
-  - cidre_issue_create
-  #- cidre_bump_patch
+  - cidre_bump_patch
   - cidre_bump_minor
   - cidre_bump_major
   block:
@@ -24,6 +22,7 @@
   - never
   - cidre_init
   - cidre_info
+  - cidre_status
   - cidre_release_end
   - cidre_changelog
   - cidre_issue_create
@@ -41,6 +40,12 @@
   block:
   - include_tasks:
       file: info.yaml
+
+- name: Status
+  tags: ["never", "cidre_status"]
+  block:
+  - include_tasks:
+      file: status.yaml
 
 - name: Start release
   tags:
