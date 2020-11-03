@@ -2,7 +2,7 @@
 
 - when:  "'cidre_bump_patch' in ansible_run_tags or 'cidre_bump_minor' in ansible_run_tags or 'cidre_bump_major' in ansible_run_tags"
   block:
-  - name: Bump version - patch
+  - name: Bump version - parse current version
     set_fact:
       version_major: "{{ cidre.version.current | regex_replace('^v(?P<major>[0-9]+)\\.(?P<minor>[0-9]+)\\.(?P<patch>[0-9]+)$', '\\g<major>') }}"
       version_minor: "{{ cidre.version.current | regex_replace('^v(?P<major>[0-9]+)\\.(?P<minor>[0-9]+)\\.(?P<patch>[0-9]+)$', '\\g<minor>') }}"
@@ -26,7 +26,7 @@
       version_minor: 0
       version_major: "{{ version_major | int + 1 }}"
 
-  - name: Bump version - patch
+  - name: Bump version - build
     set_fact:
       cidre_version_to: "v{{ version_major }}.{{ version_minor }}.{{ version_patch }}"
 
