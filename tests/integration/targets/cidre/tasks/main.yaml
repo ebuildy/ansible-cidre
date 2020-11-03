@@ -1,4 +1,7 @@
 ---
 
 - include_tasks:
+    file: init.yaml
+
+- include_tasks:
     file: github_public.yaml
