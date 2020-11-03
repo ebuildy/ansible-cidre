@@ -1,11 +1,17 @@
 ---
 
+- name: Bump version - patch
+  set_fact:
+    cidre_version_to: "{{ cidre.version.current }}"
+  tags: ["cidre_bump_patch"]
+
+- fail: "stop"
+
 - name: Git | create release branch
   shell: "git checkout -b {{ cidre.git.branches.release }}/{{ cidre.version.to }}"
   ignore_errors: yes
 
 - name: "Write into {{ cidre.version.file }}"
-  tags: ["always", "version_write"]
   block:
   - copy:
       content: "{{ cidre.version.to }}"
