@@ -1,0 +1,38 @@
+---
+
+- name: Create git branches
+  shell: "git branch {{ item }} || true"
+  with_items:
+  - "{{ cidre.git.branches.main }}"
+  - "{{ cidre.git.branches.develop }}"
+
+- name: Install prefix commit git hook
+  ansible.builtin.copy:
+    src: prepare-commit-msg.sh
+    dest: .git/hooks/prepare-commit-msg.sh
+    mode: u+x
+
+- name: Create VERSION file
+  block:
+  - stat:
+      path: "{{ cidre.version.file }}"
+    register: ff
+  - when: ff.stat.exists == False
+    ansible.builtin.copy:
+      content: "v0.1.0"
+      dest: "{{ cidre.version.file }}"
+
+- name: Create CHANGELOG file
+  block:
+  - stat:
+      path: "{{ cidre.changelog.file }}"
+    register: ff
+  - when: ff.stat.exists == False
+    ansible.builtin.template:
+      src: "changelog.md.j2"
+      dest: "{{ cidre.changelog.file }}"
+
+- name: Git commit new files
+  shell: |
+    git add {{ cidre.version.file }} {{ cidre.changelog.file }}
+    git commit {{ cidre.version.file }} {{ cidre.changelog.file }} -m "Initialize VERSION / CHANGELOG"

@@ -3,13 +3,20 @@
 - name: Get current milestone
   tags:
   - never
+  - cidre_init
   - cidre_info
   - cidre_release_start
   - cidre_release_end
-  - cidre_milestone_update
+  - cidre_changelog
   - cidre_issue_create
   set_fact:
     cidre_milestone: "{{ lookup('community.cidre.milestone', cidre.version.current, repo=cidre.project.id, platform=cidre.project.platform) }}"
+
+- name: Initialize
+  tags: ["never", "cidre_init"]
+  block:
+  - include_tasks:
+      file: init.yaml
 
 - name: Info
   tags: ["never", "cidre_info"]
@@ -31,12 +38,11 @@
   - include_tasks:
       file: issue_create.yaml
 
-
-- name: Update milestone
-  tags: ["cidre_milestone_update", "never"]
+- name: Write changelog
+  tags: ["cidre_changelog", "never"]
   block:
   - include_tasks:
-      file: milestone_update.yaml
+      file: changelog_write.yaml
 
 - name: Finish release
   tags: ["cidre_release_end", "never"]

@@ -22,6 +22,8 @@
         file: './VERSION'
         current: "{{ lookup('file', './VERSION') | default('v0.1.0') }}"
         to: "{{ cidre_version_to | default('') }}"
+      changelog:
+        file: './CHANGELOG'
 
   roles:
   - cidre_workflow

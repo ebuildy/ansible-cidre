@@ -1,5 +1,35 @@
 ---
 
+- name: Write CHANGELOG file
+  when: cidre.changelog.file is defined and cidre.project.platform == "github"
+  block:
+  - name: Get latest milestones
+    community.cidre.platform:
+      platform: "{{ cidre.project.platform }}"
+      resource: milestones
+      context:
+        repo: "{{ cidre.project.id }}"
+      query_string:
+        per_page: 50
+        sort: due_on
+        direction: desc
+        state: all
+    register: g_milestones
+  - name: Get milestones issues
+    community.cidre.platform:
+      platform: "{{ cidre.project.platform }}"
+      resource: issues
+      context:
+        repo: "{{ cidre.project.id }}"
+      query_string:
+        milestone: "{{ item.number }}"
+        state: all
+    loop: "{{ g_milestones.content }}"
+    register: g_milestones_issues
+  - ansible.builtin.template:
+      src: "changelog.md.j2"
+      dest: "{{ cidre.changelog.file }}"
+
 - name: List issues
   community.cidre.platform:
     platform: "{{ cidre.project.platform }}"
@@ -37,10 +67,5 @@
     data:
       description: "{{ milestone_content }}"
 
-- when: cidre.project.platform == "github"
-  debug:
-    msg: "Milestone updated: {{ cidre_milestone.html_url }}"
-
-- when: cidre.project.platform == "gitlab"
-  debug:
+- debug:
     msg: "Milestone updated: {{ cidre_milestone.web_url }}"
