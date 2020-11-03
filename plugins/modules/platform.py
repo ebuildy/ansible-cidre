@@ -188,7 +188,7 @@ def run_module():
         endpoint=dict(type='str'),
         access_token=dict(type='str'),
         action=dict(type='str', choices=['get', 'update', 'create', 'delete'], default="get"),
-        resource=dict(type='str', choices=['projects', 'groups', 'issues', 'milestones']),
+        resource=dict(type='str', choices=['projects', 'groups', 'issues', 'milestones', 'releases']),
         query_string=dict(type='raw', default={}),
         data=dict(type='raw', default={}),
         context=dict(type='raw', default={}),
