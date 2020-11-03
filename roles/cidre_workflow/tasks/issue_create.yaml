@@ -11,9 +11,9 @@
       action: create
       resource: issues
       data:
-        title: "{{ issue_title }}"
-        body: "{{ issue_description | default('') }}"
-        milestone: "{{ cidre_milestone.number }}"
+        title: "{{ title }}"
+        body: "{{ body | default('') }}"
+        milestone: "{{ cidre_milestone.id }}"
     register: g_issue
   - debug:
       msg: "Issue created! {{ g_issue.content.html_url }}"
@@ -29,10 +29,9 @@
       action: create
       resource: issues
       data:
-        title: "{{ issue_title }}"
-        description: "{{ issue_description }}"
+        title: "{{ title }}"
+        description: "{{ body }}"
         milestone_id: "{{ cidre_milestone.id }}"
     register: g_issue
   - debug:
-      #var: gitlab_issue
       msg: "Issue created! {{ g_issue.content.web_url }}"
