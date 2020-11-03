@@ -71,3 +71,11 @@ Respect https://semver.org/
 ## changelog
 
 Respect https://keepachangelog.com/fr/1.0.0/
+
+### Developer
+
+```
+# Use pipenv to setup with Python 2.7
+pipenv install
+
+```

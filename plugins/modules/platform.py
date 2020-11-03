@@ -37,11 +37,6 @@ options:
     description:
     - Query string
     type: str
-    choices:
-    - projects
-    - milestones
-    - issues
-    - releases
   action:
     description:
     - HTTP method
@@ -114,6 +109,12 @@ from ansible.utils.display import Display
 
 display = Display()
 
+def gitlab_fix_context(context):
+    if "repo" in context:
+        context["project"] = context["repo"]
+        unset(context["repo"])
+
+
 GITHUB = {
     "DEFAULT_URL": "https://api.github.com",
 
@@ -142,6 +143,8 @@ GITLAB = {
     },
 
     "http_methods" : {"get": "get", "create": "post", "update": "put", "delete": "delete"},
+
+    "context_fix": gitlab_fix_context,
 
     "DEFAULT_HEADERS": {
         "Content-Type" : "application/json"
@@ -188,7 +191,7 @@ def run_module():
         endpoint=dict(type='str'),
         access_token=dict(type='str'),
         action=dict(type='str', choices=['get', 'update', 'create', 'delete'], default="get"),
-        resource=dict(type='str', choices=['projects', 'groups', 'issues', 'milestones', 'releases']),
+        resource=dict(type='str'),
         query_string=dict(type='raw', default={}),
         data=dict(type='raw', default={}),
         context=dict(type='raw', default={}),
@@ -225,6 +228,9 @@ def run_module():
         else:
             arg_endpoint = platform["DEFAULT_URL"]
 
+    if "context_fix" in platform:
+        platform["context_fix"](arg_context)
+
     http_method = platform['http_methods'][arg_action]
     http_url = platform_api_build_url(arg_endpoint, arg_resource, arg_context, arg_query_string)
     http_query_body = None
@@ -236,7 +242,7 @@ def run_module():
         else:
             display.vv("Missing access_token!")
 
-    if len(arg_access_token) > 0:
+    if arg_access_token is not None and len(arg_access_token) > 0:
         http_headers["Authorization"] = "%s %s" % (platform['AUTH_HEADER'], arg_access_token)
 
     start = datetime.datetime.utcnow()
@@ -265,7 +271,7 @@ def run_module():
     http_content_data = json.loads(content)
 
     if http_response_status >= 400 and http_response_status < 500:
-        module.fail_json(msg="Platform error [%s] when calling %s : %s" % (info['status'], http_url, content))
+        module.fail_json(msg="Platform error [%s] when %s %s : %s" % (info['status'], http_method, http_url, content))
 
     uresp = {
         "url" : http_url,
