@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # (c) 2020, Thomas Decaux <@ebuildy>

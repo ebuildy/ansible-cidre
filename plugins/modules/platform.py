@@ -9,9 +9,11 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 
-module: community.cidre.platform
+module: platform
 
 short_description: Call Github or Gitlab HTTP API
+
+description: Call Github or Gitlab HTTP API
 
 author:
   - "Thomas Decaux (@ebuildy)"
@@ -41,6 +43,7 @@ options:
     description:
     - HTTP method
     type: str
+    default: get
     choices:
     - get
     - update
@@ -58,11 +61,12 @@ options:
     description:
     - Related project / user / issue / milestone ID
     type: raw
+  body_format:
+    type: str
+    default: json
 
 requirements:
   - "python >= 2.7"
-  - "openshift >= 0.6"
-  - "PyYAML >= 3.11"
 '''
 
 EXAMPLES = r'''

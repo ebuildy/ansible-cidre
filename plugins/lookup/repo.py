@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # (c) 2020, Thomas Decaux <@ebuildy>
@@ -8,24 +7,23 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = """
-    name: gitlab_repo
+    name: repo
     author: Thomas Decaux
     version_added: "0.1.0"
     short_description: get project ID via name
     extends_documentation_fragment:
-    - community.cidre.gitlab_api
+    - community.cidre.platform_api
     - community.cidre.url
     description:
-        - Get project ID via its name
+        - Get repo
     options:
       _terms:
-        description: project name
-        required: True
+        description: repo
 """
 
 EXAMPLES = """
 - name: Display test-cidre project ID
-  debug: msg={{ lookup('community.cidre.gitlab_repo', 'test-cidre') }}
+  debug: msg={{ lookup('community.cidre.repo', 'v1.0.0', platform='github' repo='ebuildy/test') }}
 """
 
 RETURN = """
@@ -41,7 +39,7 @@ from ansible.plugins.lookup import LookupBase
 from ansible.errors import AnsibleFileNotFound
 from ansible.errors import AnsibleError
 from ansible.module_utils.six.moves.urllib.error import HTTPError, URLError
-from ansible.module_utils._text import to_bytes, to_text
+from ansible.module_utils._text import to_bytes, to_text, to_native
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.module_utils.urls import open_url, ConnectionError, SSLValidationError
@@ -53,24 +51,27 @@ class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
 
-        self.set_options(var_options=variables, direct=kwargs)
+        self.set_options(direct=kwargs)
 
-        arg_endpoint = self.get_option('gitlab_url')
-        arg_access_token = self.get_option('gitlab_access_token')
+        arg_platform = self.get_option('platform')
+        arg_repo = self.get_option('repo')
+        arg_endpoint = self.get_option(arg_platform + '_url')
+        arg_access_token = self.get_option(arg_platform + '_access_token')
 
         ret = []
 
         for term in terms:
-            display.v("search gitlab project %s" % term)
+            full_url = "%s/repos/%s" % (arg_endpoint, arg_repo)
 
-            full_url = "%s/projects?%s" % (arg_endpoint, urlencode({"search":term}))
-
-            display.vvvv(full_url)
+            display.vv(full_url)
 
             in_headers = self.get_option('headers')
 
-            in_headers['content-type'] = 'application/json'
-            in_headers['Authorization'] = "Bearer " + arg_access_token
+            in_headers['Accept'] = 'application/vnd.github.v3+json'
+            in_headers['Content-Type'] = 'application/json'
+
+            if arg_access_token is not None and len(arg_access_token) > 0:
+                in_headers['Authorization'] = "token " + arg_access_token
 
             try:
                 response = open_url(full_url,
@@ -98,7 +99,14 @@ class LookupModule(LookupBase):
                 if response_data is None or len(response_data) == 0:
                     raise AnsibleError('Project "%s" not found!' % term)
 
-                ret.append(str(response_data[0]))
+                for i in response_data:
+                    if i['title'] == term:
+                        # Fix vendor fields
+                        if arg_platform == 'github':
+                            i['web_url'] = i['html_url']
+                            i['id'] = i['number']
+
+                        ret.append(i)
 
             except HTTPError as e:
                 raise AnsibleError("Received HTTP error for %s : %s" % (term, to_native(e)))
