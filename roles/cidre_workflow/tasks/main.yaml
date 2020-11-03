@@ -9,7 +9,7 @@
   - cidre_release_end
   - cidre_changelog
   - cidre_issue_create
-  - cidre_bump_patch
+  #- cidre_bump_patch
   - cidre_bump_minor
   - cidre_bump_major
   block:
