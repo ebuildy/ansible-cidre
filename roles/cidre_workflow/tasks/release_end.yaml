@@ -53,13 +53,13 @@
   - "{{ cidre.git.branches.main }}"
   - "{{ cidre.version.current }}"
 
-- name: Close milestone
+- name: Close release
   community.cidre.platform:
     platform: "{{ cidre.project.platform }}"
+    action: update
     context:
       repo: "{{ cidre.project.id }}"
       milestone: "{{ cidre_milestone.id }}"
-    action: update
     data:
       state: closed
 
