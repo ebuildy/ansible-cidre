@@ -27,7 +27,7 @@ test-unit:
 	ansible-test units --docker -v --color --python $(PYTHON_VERSION)
 
 test-integration:
-	ansible-test integration --docker -v --color --retry-on-error --python $(PYTHON_VERSION) --continue-on-error --diff --coverage $(?TEST_ARGS)
+	ansible-test integration --docker --color --retry-on-error --python $(PYTHON_VERSION) --continue-on-error --diff --coverage $(?TEST_ARGS)
 
 test-molecule:
 	molecule test

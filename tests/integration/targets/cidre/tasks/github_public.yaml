@@ -12,6 +12,6 @@
   set_fact:
     g_first_milestone: "{{ lookup('community.cidre.milestone', 'v0.1.0', repo='ebuildy/ansible-cidre', platform='github') }}"
 
-- when: g_first_milestone.id != 'v0.1.0'
+- when: g_first_milestone.title != 'v0.1.0'
   fail:
     msg: Wrong milestone!

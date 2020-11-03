@@ -105,9 +105,6 @@ import datetime
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves.urllib.parse import urlencode
-from ansible.utils.display import Display
-
-display = Display()
 
 def gitlab_fix_context(context):
     if "repo" in context:
@@ -239,8 +236,6 @@ def run_module():
     if arg_access_token is None or len(arg_access_token) == 0:
         if platform['env']['token'] in os.environ:
             arg_access_token = os.environ[platform['env']['token']]
-        else:
-            display.vv("Missing access_token!")
 
     if arg_access_token is not None and len(arg_access_token) > 0:
         http_headers["Authorization"] = "%s %s" % (platform['AUTH_HEADER'], arg_access_token)
@@ -249,8 +244,6 @@ def run_module():
 
     if len(arg_data) > 0:
         http_query_body = json.dumps(arg_data)
-
-    display.v(http_url)
 
     resp, info = fetch_url(
         module,

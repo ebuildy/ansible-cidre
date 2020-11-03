@@ -64,7 +64,7 @@ class LookupModule(LookupBase):
         for term in terms:
             full_url = "%s/repos/%s/milestones?state=all&per_page=100" % (arg_endpoint, arg_repo)
 
-            display.v(full_url)
+            display.vv(full_url)
 
             in_headers = self.get_option('headers')
 
