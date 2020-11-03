@@ -1,5 +1,9 @@
 ---
 
+- when: title is not defined
+  fail:
+    msg: "variable title is missing!"
+
 - name: create issue
   when: cidre.project.platform == "github"
   block:

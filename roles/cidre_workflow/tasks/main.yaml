@@ -55,7 +55,6 @@
 
 - name: Create issue
   tags: ["cidre_issue_create", "never"]
-  when: issue_title is defined
   block:
   - include_tasks:
       file: issue_create.yaml
