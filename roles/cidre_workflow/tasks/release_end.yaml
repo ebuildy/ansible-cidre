@@ -101,4 +101,4 @@
 - name: Delete local and remote release branch
   shell: |
     git branch -D {{ git_branch }}
-    git push -d origin {{ git_branch }}
+    git push -d origin {{ git_branch }} || true

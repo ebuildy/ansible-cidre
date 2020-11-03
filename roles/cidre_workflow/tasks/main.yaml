@@ -9,6 +9,9 @@
   - cidre_release_end
   - cidre_changelog
   - cidre_issue_create
+  - cidre_bump_patch
+  - cidre_bump_minor
+  - cidre_bump_major
   block:
   - shell: "git status --porcelain"
     register: git_status
@@ -40,8 +43,12 @@
       file: info.yaml
 
 - name: Start release
-  tags: ["cidre_release_start", "never"]
-  when: cidre.version.to != ''
+  tags:
+  - cidre_bump_patch
+  - cidre_bump_minor
+  - cidre_bump_major
+  - cidre_release_start
+  - never
   block:
   - include_tasks:
       file: release_start.yaml
