@@ -1,11 +1,26 @@
 ---
 
-- name: Get current milestone
+- name: Check git is clean
   tags:
   - never
   - cidre_init
   - cidre_info
   - cidre_release_start
+  - cidre_release_end
+  - cidre_changelog
+  - cidre_issue_create
+  block:
+  - shell: "git status --porcelain"
+    register: git_status
+  - fail:
+      msg: "Please clean git status: {{ git_status.stdout }}"
+    when: git_status.stdout != ""
+
+- name: Get current milestone
+  tags:
+  - never
+  - cidre_init
+  - cidre_info
   - cidre_release_end
   - cidre_changelog
   - cidre_issue_create

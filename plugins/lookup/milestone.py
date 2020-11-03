@@ -62,7 +62,7 @@ class LookupModule(LookupBase):
         ret = []
 
         for term in terms:
-            full_url = "%s/repos/%s/milestones?per_page=100" % (arg_endpoint, arg_repo)
+            full_url = "%s/repos/%s/milestones?state=all&per_page=100" % (arg_endpoint, arg_repo)
 
             display.v(full_url)
 
