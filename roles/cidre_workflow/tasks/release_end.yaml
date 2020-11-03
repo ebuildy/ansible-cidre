@@ -53,6 +53,16 @@
   - "{{ cidre.git.branches.main }}"
   - "{{ cidre.version.current }}"
 
+- name: Close release
+  community.cidre.platform:
+    platform: "{{ cidre.project.platform }}"
+    action: update
+    context:
+      repo: "{{ cidre.project.id }}"
+      milestone: "{{ cidre_milestone.id }}"
+    data:
+      state: closed
+
 - name: Create Github release
   when: cidre.project.platform == "github"
   block:
