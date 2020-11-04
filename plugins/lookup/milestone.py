@@ -61,9 +61,6 @@ class LookupModule(LookupBase):
         arg_endpoint = self.get_option(arg_platform + '_url')
         arg_access_token = self.get_option(arg_platform + '_access_token')
 
-        display.v(json.dumps(os.environ))
-        display.v(arg_access_token)
-
         if arg_platform == "gitlab":
             platform = GITLAB
         else:
@@ -75,7 +72,6 @@ class LookupModule(LookupBase):
             full_url = platform['http_build_url'](arg_endpoint, "milestones", {"repo" : arg_repo}, {"state" : "all", "per_page" : 100})
 
             display.vv(full_url)
-            display.vv(arg_access_token)
 
             http_headers = self.get_option('headers')
 
