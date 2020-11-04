@@ -4,9 +4,9 @@
   block:
   - name: Bump version - parse current version
     set_fact:
-      version_major: "{{ cidre.version.current | regex_replace('^v(?P<major>[0-9]+)\\.(?P<minor>[0-9]+)\\.(?P<patch>[0-9]+)$', '\\g<major>') }}"
-      version_minor: "{{ cidre.version.current | regex_replace('^v(?P<major>[0-9]+)\\.(?P<minor>[0-9]+)\\.(?P<patch>[0-9]+)$', '\\g<minor>') }}"
-      version_patch: "{{ cidre.version.current | regex_replace('^v(?P<major>[0-9]+)\\.(?P<minor>[0-9]+)\\.(?P<patch>[0-9]+)$', '\\g<patch>') }}"
+      version_major: "{{ cidre_version | regex_replace('^v(?P<major>[0-9]+)\\.(?P<minor>[0-9]+)\\.(?P<patch>[0-9]+)$', '\\g<major>') }}"
+      version_minor: "{{ cidre_version | regex_replace('^v(?P<major>[0-9]+)\\.(?P<minor>[0-9]+)\\.(?P<patch>[0-9]+)$', '\\g<minor>') }}"
+      version_patch: "{{ cidre_version | regex_replace('^v(?P<major>[0-9]+)\\.(?P<minor>[0-9]+)\\.(?P<patch>[0-9]+)$', '\\g<patch>') }}"
 
   - name: Bump version - patch
     when: "'cidre_bump_patch' in ansible_run_tags"
@@ -34,31 +34,31 @@
   fail:
     msg: "stop: target version is not defined!"
 
-- when: cidre_version_to == cidre.version.current
+- when: cidre_version_to == cidre_version
   fail:
-    msg: "stop: current version is already {{ cidre.version.current }}!"
+    msg: "stop: current version is already {{ cidre_version }}!"
 
 - name: Git | create release branch
-  shell: "git checkout -b {{ cidre.git.branches.release }}/{{ cidre_version_to }}"
+  shell: "git checkout -b {{ cidre_git_branch_release_prefix }}/{{ cidre_version_to }}"
   ignore_errors: yes
 
-- name: "Write into {{ cidre.version.file }}"
+- name: "Write into {{ cidre_version_file }}"
   block:
   - copy:
       content: "{{ cidre_version_to }}"
-      dest: "{{ cidre.version.file }}"
+      dest: "{{ cidre_version_file }}"
   - shell: |
-      git commit {{ cidre.version.file }} -m "Bump version to {{ cidre_version_to }}"
+      git commit {{ cidre_version_file }} -m "Bump version to {{ cidre_version_to }}"
 
 - name: Get or create milestone
-  when: cidre.project.platform == 'github'
+  when: cidre_platform == 'github'
   block:
   - name: create milestone
     community.cidre.platform:
-      platform: "{{ cidre.project.platform }}"
+      platform: "{{ cidre_platform }}"
       action: create
       context:
-        repo: "{{ cidre.project.id }}"
+        repo: "{{ cidre_repo }}"
       resource: milestones
       data:
         title: "{{ cidre_version_to }}"
@@ -68,14 +68,14 @@
       msg: "milestone created {{ g_milestone.content.html_url }}"
 
 - name: Get or create milestone
-  when: cidre.project.platform == 'gitlab'
+  when: cidre_platform == 'gitlab'
   block:
   - name: create milestone
     community.cidre.platform:
-      platform: "{{ cidre.project.platform }}"
+      platform: "{{ cidre_platform }}"
       action: create
       context:
-        project: "{{ cidre.project.id }}"
+        project: "{{ cidre_repo }}"
       resource: milestones
       data:
         title: "{{ cidre_version_to }}"

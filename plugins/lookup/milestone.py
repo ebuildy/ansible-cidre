@@ -34,6 +34,7 @@ RETURN = """
 """
 
 import json
+import os
 
 from ansible.plugins.lookup import LookupBase
 from ansible.errors import AnsibleFileNotFound
@@ -44,6 +45,8 @@ from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.module_utils.urls import open_url, ConnectionError, SSLValidationError
 from ansible.utils.display import Display
+
+from ..modules.platform import GITLAB, GITHUB
 
 display = Display()
 
@@ -58,20 +61,25 @@ class LookupModule(LookupBase):
         arg_endpoint = self.get_option(arg_platform + '_url')
         arg_access_token = self.get_option(arg_platform + '_access_token')
 
+        display.v(json.dumps(os.environ))
+        display.v(arg_access_token)
+
+        if arg_platform == "gitlab":
+            platform = GITLAB
+        else:
+            platform = GITHUB
+
         ret = []
 
         for term in terms:
-            full_url = "%s/repos/%s/milestones?state=all&per_page=100" % (arg_endpoint, arg_repo)
+            full_url = platform['http_build_url'](arg_endpoint, "milestones", {"repo" : arg_repo}, {"state" : "all", "per_page" : 100})
 
             display.vv(full_url)
+            display.vv(arg_access_token)
 
-            in_headers = self.get_option('headers')
+            http_headers = self.get_option('headers')
 
-            in_headers['Accept'] = 'application/vnd.github.v3+json'
-            in_headers['Content-Type'] = 'application/json'
-
-            if arg_access_token is not None and len(arg_access_token) > 0:
-                in_headers['Authorization'] = "token " + arg_access_token
+            platform['http_pre_hook'](http_headers, arg_access_token)
 
             try:
                 response = open_url(full_url,
@@ -79,7 +87,7 @@ class LookupModule(LookupBase):
                                     use_proxy=self.get_option('use_proxy'),
                                     url_username=self.get_option('username'),
                                     url_password=self.get_option('password'),
-                                    headers=in_headers,
+                                    headers=http_headers,
                                     force=self.get_option('force'),
                                     timeout=self.get_option('timeout'),
                                     http_agent=self.get_option('http_agent'),

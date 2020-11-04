@@ -25,7 +25,7 @@ options:
   github_url:
     description: API endpoint
     type: string
-    default: "https://api.github.com"
+    default: ""
     env:
     - name: GITHUB_URL
   github_access_token:
@@ -36,7 +36,7 @@ options:
   gitlab_url:
     description: API endpoint
     type: string
-    default: "https://gitlab.com/api/v4"
+    default: ""
     env:
     - name: GITLAB_URL
   gitlab_access_token:

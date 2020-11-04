@@ -1,16 +1,16 @@
 ---
 
 - debug:
-    msg: "Current version = {{ cidre.version.current }}"
+    msg: "Current version = {{ cidre_version }}"
 
 - debug:
     msg: "Current milestone = {{ cidre_milestone.id }} - {{ cidre_milestone.web_url }}"
 
 - block:
   - community.cidre.platform:
-      platform: "{{ cidre.project.platform }}"
+      platform: "{{ cidre_platform }}"
       context:
-        repo: "{{ cidre.project.id }}"
+        repo: "{{ cidre_repo }}"
     register: g_project
   - debug:
       var: g_project

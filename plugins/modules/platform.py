@@ -108,52 +108,7 @@ import datetime
 
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.six.moves.urllib.parse import urlencode
-
-def gitlab_fix_context(context):
-    if "repo" in context:
-        context["project"] = context["repo"]
-        unset(context["repo"])
-
-
-GITHUB = {
-    "DEFAULT_URL": "https://api.github.com",
-
-    "env" : {
-        "url" : "GITHUB_URL",
-        "token" : "GITHUB_TOKEN"
-    },
-
-    "http_methods" : {"get": "get", "create": "post", "update": "patch", "delete": "delete"},
-
-    "DEFAULT_HEADERS": {
-        "Content-Type" : "application/json",
-        "Accept" : "application/vnd.github.v3+json"
-    },
-
-    "AUTH_HEADER": "token"
-
-}
-
-GITLAB = {
-    "DEFAULT_URL": "https://gitlab.com/api/v4",
-
-    "env" : {
-        "url" : "GITLAB_URL",
-        "token" : "GITLAB_TOKEN"
-    },
-
-    "http_methods" : {"get": "get", "create": "post", "update": "put", "delete": "delete"},
-
-    "context_fix": gitlab_fix_context,
-
-    "DEFAULT_HEADERS": {
-        "Content-Type" : "application/json"
-    },
-
-    "AUTH_HEADER": "Bearer"
-
-}
+from ansible.module_utils.six.moves.urllib.parse import urlencode, quote
 
 def urls_part_to_url(parts):
     if len(parts) == 0:
@@ -184,6 +139,57 @@ def platform_api_build_url(endpoint, resource, context, query_string):
 
     return full_url
 
+
+
+def gitlab_pre_http(headers, access_token):
+    headers["Content-Type"] = "application/json"
+    headers["Accept"] = "application/json"
+
+    if access_token is not None and len(access_token) > 0:
+        headers['Authorization'] = "Bearer " + access_token
+
+def gitlab_api_build_url(endpoint, resource, context, query_string):
+    if endpoint is None or len(endpoint) == 0:
+        endpoint = "https://gitlab.com/api/v4"
+
+    if "repo" in context:
+        context["project"] = quote(context["repo"], safe='')
+        del context["repo"]
+
+    return platform_api_build_url(endpoint, resource, context, query_string)
+
+def github_api_build_url(endpoint, resource, context, query_string):
+    if endpoint is None or len(endpoint) == 0:
+        endpoint = "https://api.github.com"
+
+    return platform_api_build_url(endpoint, resource, context, query_string)
+
+def github_pre_http(headers, access_token):
+    headers["Content-Type"] = "application/json"
+    headers["Accept"] = "application/vnd.github.v3+json"
+
+    if access_token is not None and len(access_token) > 0:
+        headers['Authorization'] = "token " + access_token
+
+GITHUB = {
+    "env" : {
+        "url" : "GITHUB_URL",
+        "token" : "GITHUB_TOKEN"
+    },
+    "http_methods" : {"get": "get", "create": "post", "update": "patch", "delete": "delete"},
+    "http_pre_hook" : github_pre_http,
+    "http_build_url" : github_api_build_url
+}
+
+GITLAB = {
+    "env" : {
+        "url" : "GITLAB_URL",
+        "token" : "GITLAB_TOKEN"
+    },
+    "http_methods" : {"get": "get", "create": "post", "update": "put", "delete": "delete"},
+    "http_pre_hook" : gitlab_pre_http,
+    "http_build_url" : gitlab_api_build_url
+}
 
 def run_module():
 
@@ -225,24 +231,23 @@ def run_module():
 
     if arg_endpoint is None or len(arg_endpoint) == 0:
         if platform['env']['url'] in os.environ:
-            arg_access_token = os.environ[platform['env']['url']]
+            arg_endpoint = os.environ[platform['env']['url']]
         else:
-            arg_endpoint = platform["DEFAULT_URL"]
+            arg_endpoint = ""
 
     if "context_fix" in platform:
         platform["context_fix"](arg_context)
 
     http_method = platform['http_methods'][arg_action]
-    http_url = platform_api_build_url(arg_endpoint, arg_resource, arg_context, arg_query_string)
+    http_url = platform['http_build_url'](arg_endpoint, arg_resource, arg_context, arg_query_string)
     http_query_body = None
-    http_headers = platform["DEFAULT_HEADERS"]
+    http_headers = {}
 
     if arg_access_token is None or len(arg_access_token) == 0:
         if platform['env']['token'] in os.environ:
             arg_access_token = os.environ[platform['env']['token']]
 
-    if arg_access_token is not None and len(arg_access_token) > 0:
-        http_headers["Authorization"] = "%s %s" % (platform['AUTH_HEADER'], arg_access_token)
+    platform['http_pre_hook'](http_headers, arg_access_token)
 
     start = datetime.datetime.utcnow()
 

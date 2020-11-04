@@ -2,4 +2,6 @@
 
 - include_role:
     name: community.cidre.cidre_workflow
-    tasks_from: init
+    apply:
+      tags:
+        - cidre_init

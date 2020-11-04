@@ -1,14 +1,14 @@
 ---
 
 - debug:
-    msg: "Current version = {{ cidre.version.current }}, milestone = {{ cidre_milestone.title }} - {{ cidre_milestone.web_url }}"
+    msg: "Current version = {{ cidre_version }}, milestone = {{ cidre_milestone.title }} - {{ cidre_milestone.web_url }}"
 
 - name: List issues
   community.cidre.platform:
-    platform: "{{ cidre.project.platform }}"
+    platform: "{{ cidre_platform }}"
     resource: issues
     context:
-      repo: "{{ cidre.project.id }}"
+      repo: "{{ cidre_repo }}"
     query_string:
       milestone: "{{ cidre_milestone.id }}"
       state: open

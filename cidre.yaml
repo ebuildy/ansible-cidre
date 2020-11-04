@@ -9,20 +9,9 @@
   # ansible-playbook ./cidre.yaml --tags "issue_create" -e 'issue_title="CI: integrate cidre"' -e issue_description="cidre"
 
   vars:
-    cidre:
-      git:
-        branches:
-          main: "main"
-          develop: "develop"
-          release: "release"
-      project:
-        id: ebuildy/ansible-cidre
-        platform: github
-      version:
-        file: './VERSION'
-        current: "{{ lookup('file', './VERSION') | default('v0.1.0') }}"
-      changelog:
-        file: './CHANGELOG'
+    cidre_project: ebuildy/ansible-cidre
+    cidre_platform: github
+    cidre_version: "{{ lookup('file', './VERSION') | default('v0.1.0') }}"
 
   roles:
   - cidre_workflow

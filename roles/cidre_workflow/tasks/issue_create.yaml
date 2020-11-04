@@ -5,13 +5,13 @@
     msg: "variable title is missing!"
 
 - name: create issue
-  when: cidre.project.platform == "github"
+  when: cidre_platform == "github"
   block:
   - name: Github API > Create issue
     community.cidre.platform:
-      platform: "{{ cidre.project.platform }}"
+      platform: "{{ cidre_platform }}"
       context:
-        repo: "{{ cidre.project.id }}"
+        repo: "{{ cidre_repo }}"
       action: create
       resource: issues
       data:
@@ -23,13 +23,13 @@
       msg: "Issue created! {{ g_issue.content.html_url }}"
 
 - name: create issue
-  when: cidre.project.platform == "gitlab"
+  when: cidre_platform == "gitlab"
   block:
   - name: Gitlab API > Create issue
     community.cidre.platform:
-      platform: "{{ cidre.project.platform }}"
+      platform: "{{ cidre_platform }}"
       context:
-        repo: "{{ cidre.project.id }}"
+        repo: "{{ cidre_repo }}"
       action: create
       resource: issues
       data:

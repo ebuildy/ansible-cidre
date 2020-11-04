@@ -1,10 +1,18 @@
 ---
 
+- name: git init
+  block:
+  - stat:
+      path: ".git"
+    register: ff
+  - when: ff.stat.exists == False
+    shell: "git init"
+
 - name: Create git branches
   shell: "git branch {{ item }} || true"
   with_items:
-  - "{{ cidre.git.branches.main }}"
-  - "{{ cidre.git.branches.develop }}"
+  - "{{ cidre_git_branch_main }}"
+  - "{{ cidre_git_branch_dev }}"
 
 - name: Install prefix commit git hook
   ansible.builtin.copy:
@@ -15,24 +23,24 @@
 - name: Create VERSION file
   block:
   - stat:
-      path: "{{ cidre.version.file }}"
+      path: "{{ cidre_version_file }}"
     register: ff
   - when: ff.stat.exists == False
     ansible.builtin.copy:
       content: "v0.1.0"
-      dest: "{{ cidre.version.file }}"
+      dest: "{{ cidre_version_file }}"
 
 - name: Create CHANGELOG file
   block:
   - stat:
-      path: "{{ cidre.changelog.file }}"
+      path: "{{ cidre_changelog_file }}"
     register: ff
   - when: ff.stat.exists == False
     ansible.builtin.template:
       src: "changelog.md.j2"
-      dest: "{{ cidre.changelog.file }}"
+      dest: "{{ cidre_changelog_file }}"
 
 - name: Git commit new files
   shell: |
-    git add {{ cidre.version.file }} {{ cidre.changelog.file }}
-    git commit {{ cidre.version.file }} {{ cidre.changelog.file }} -m "Initialize VERSION / CHANGELOG"
+    git add {{ cidre_version_file }} {{ cidre_changelog_file }}
+    git commit {{ cidre_version_file }} {{ cidre_changelog_file }} -m "Initialize VERSION / CHANGELOG"

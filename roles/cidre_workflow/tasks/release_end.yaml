@@ -9,7 +9,7 @@
     when: git_status.stdout != ""
 
 - set_fact:
-    git_branch: "{{ cidre.git.branches.release }}/{{ cidre.version.current }}"
+    git_branch: "{{ cidre_git_branch_release_prefix }}/{{ cidre_version }}"
 
 #- name: Check | git branch
 #  tags: ["always"]
@@ -25,73 +25,73 @@
   register: shell_git_branch
 
 # Check tag exist
-- shell: "git rev-parse --verify --quiet {{ cidre.version.current }} || true"
+- shell: "git rev-parse --verify --quiet {{ cidre_version }} || true"
   register: shell_git_tag
 
 - name: Merge branch into main
   when: shell_git_branch.stdout != ""
   shell: |
-    git switch {{ cidre.git.branches.main }}
+    git switch {{ cidre_git_branch_main }}
     git merge {{ git_branch }}
 
 - name: Merge main branch into develop
   when: shell_git_branch.stdout != ""
   shell: |
-    git switch {{ cidre.git.branches.develop }}
+    git switch {{ cidre_git_branch_dev }}
     git merge {{ git_branch }}
 
 - name: Create git tag from main branch
   when: shell_git_tag.stdout == ""
   shell: |
-    git switch {{ cidre.git.branches.main }}
-    git tag -a {{ cidre.version.current }} -m "{{ cidre.version.current }}: {{ cidre_milestone.web_url }}"
+    git switch {{ cidre_git_branch_main }}
+    git tag -a {{ cidre_version }} -m "{{ cidre_version }}: {{ cidre_milestone.web_url }}"
 
 - name: git push
   shell: "git push origin {{ item }}"
   with_items:
-  - "{{ cidre.git.branches.develop }}"
-  - "{{ cidre.git.branches.main }}"
-  - "{{ cidre.version.current }}"
+  - "{{ cidre_git_branch_dev }}"
+  - "{{ cidre_git_branch_main }}"
+  - "{{ cidre_version }}"
 
 - name: Close release
   community.cidre.platform:
-    platform: "{{ cidre.project.platform }}"
+    platform: "{{ cidre_platform }}"
     action: update
     context:
-      repo: "{{ cidre.project.id }}"
+      repo: "{{ cidre_repo }}"
       milestone: "{{ cidre_milestone.id }}"
     data:
       state: closed
 
 - name: Create Github release
-  when: cidre.project.platform == "github"
+  when: cidre_platform == "github"
   block:
   - community.cidre.platform:
-      platform: "{{ cidre.project.platform }}"
+      platform: "{{ cidre_platform }}"
       context:
-        repo: "{{ cidre.project.id }}"
+        repo: "{{ cidre_repo }}"
       action: create
       resource: releases
       data:
-        name: "{{ cidre.version.current }}"
-        tag_name: "{{ cidre.version.current }}"
+        name: "{{ cidre_version }}"
+        tag_name: "{{ cidre_version }}"
         description: "{{ cidre_milestone.description }}"
     register: g_release
   - debug:
       msg: "Release created: {{ g_release.content.html_url }}"
 
 - name: Create Gitlab release
-  when: cidre.project.platform == "gitlab"
+  when: cidre_platform == "gitlab"
   block:
   - community.cidre.platform:
-      platform: "{{ cidre.project.platform }}"
+      platform: "{{ cidre_platform }}"
       context:
-        repo: "{{ cidre.project.id }}"
+        repo: "{{ cidre_repo }}"
       action: create
       resource: releases
       data:
-        name: "{{ cidre.version.current }}"
-        tag_name: "{{ cidre.version.current }}"
+        name: "{{ cidre_version }}"
+        tag_name: "{{ cidre_version }}"
         description: "{{ cidre_milestone.description }}"
         milestone: "{{ cidre_milestone.id }}"
     register: g_release
