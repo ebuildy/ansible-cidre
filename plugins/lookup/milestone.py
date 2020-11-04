@@ -7,13 +7,13 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = """
-    name: github_repo
+    name: milestone
     author: Thomas Decaux
     version_added: "0.1.0"
     short_description: get project ID via name
     extends_documentation_fragment:
-    - community.cidre.platform_api
-    - community.cidre.url
+    - ebuildy.cidre.platform_api
+    - ebuildy.cidre.url
     description:
         - Get milestone
     options:
@@ -23,7 +23,7 @@ DOCUMENTATION = """
 
 EXAMPLES = """
 - name: Display test-cidre project ID
-  debug: msg={{ lookup('community.cidre.milestone', 'v1.0.0', platform='github' repo='ebuildy/test') }}
+  debug: msg={{ lookup('ebuildy.cidre.milestone', 'v1.0.0', platform='github' repo='ebuildy/test') }}
 """
 
 RETURN = """

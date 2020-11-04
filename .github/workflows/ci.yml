@@ -17,7 +17,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
         with:
-          path: ansible_collections/community/cidre
+          path: ansible_collections/ebuildy/cidre
 
       - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v1
@@ -29,7 +29,7 @@ jobs:
 
       - name: Run sanity tests on Python ${{ matrix.python_version }}
         run: make test-sanity PYTHON_VERSION=${{ matrix.python_version }}
-        working-directory: ./ansible_collections/community/cidre
+        working-directory: ./ansible_collections/ebuildy/cidre
 
   integration:
     runs-on: ubuntu-latest
@@ -40,7 +40,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
         with:
-          path: ansible_collections/community/cidre
+          path: ansible_collections/ebuildy/cidre
 
       - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v1
@@ -52,15 +52,15 @@ jobs:
 
       - name: Run unit tests on Python ${{ matrix.python_version }}
         run: make test-unit PYTHON_VERSION=${{ matrix.python_version }}
-        working-directory: ./ansible_collections/community/cidre
+        working-directory: ./ansible_collections/ebuildy/cidre
 
       - name: Run integration tests on Python ${{ matrix.python_version }}
         run: make test-integration PYTHON_VERSION=${{ matrix.python_version }}
-        working-directory: ./ansible_collections/community/cidre
+        working-directory: ./ansible_collections/ebuildy/cidre
 
       - name: Generate coverage report.
         run: ansible-test coverage xml -v --requirements --group-by command --group-by version
-        working-directory: ./ansible_collections/community/cidre
+        working-directory: ./ansible_collections/ebuildy/cidre
 
       - uses: codecov/codecov-action@v1
         with:

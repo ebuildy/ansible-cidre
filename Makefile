@@ -4,10 +4,10 @@ VERSION = $(shell cat VERSION | cut -c2-)
 TEST_ARGS ?= ""
 PYTHON_VERSION ?= `python -c 'import platform; print("{0}.{1}".format(platform.python_version_tuple()[0], platform.python_version_tuple()[1]))'`
 
-TEST_FOLDER ?= .test/ansible_collections/community/cidre
+TEST_FOLDER ?= .test/ansible_collections/ebuildy/cidre
 
 clean:
-	rm -f community-cidre-${VERSION}.tar.gz
+	rm -f ebuildy-cidre-${VERSION}.tar.gz
 	rm -rf ansible_collections
 	rm -rf tests/output
 
@@ -15,10 +15,10 @@ build: clean
 	ansible-galaxy collection build
 
 release: build
-	ansible-galaxy collection publish community-cidre-${VERSION}.tar.gz
+	ansible-galaxy collection publish ebuildy-cidre-${VERSION}.tar.gz
 
 install: build
-	ansible-galaxy collection install -p ansible_collections community-cidre-${VERSION}.tar.gz
+	ansible-galaxy collection install -p ansible_collections ebuildy-cidre-${VERSION}.tar.gz
 
 test-sanity:
 	ansible-test sanity --docker -v --color --python $(PYTHON_VERSION) $(?TEST_ARGS)
@@ -40,18 +40,3 @@ local/test-integration:
 
 local/test-units:
 	ansible-test units --python 2.7
-
-downstream-test-sanity:
-	./utils/downstream.sh -s
-
-downstream-test-integration:
-	./utils/downstream.sh -i
-
-downstream-test-molecule:
-	./utils/downstream.sh -m
-
-downstream-build:
-	./utils/downstream.sh -b
-
-downstream-release:
-	./utils/downstream.sh -r

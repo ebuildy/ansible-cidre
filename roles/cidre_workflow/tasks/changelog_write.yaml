@@ -4,7 +4,7 @@
   when: cidre_changelog_file is defined and cidre_platform == "github"
   block:
   - name: Get latest milestones
-    community.cidre.platform:
+    ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       resource: milestones
       context:
@@ -16,7 +16,7 @@
         state: all
     register: g_milestones
   - name: Get milestones issues
-    community.cidre.platform:
+    ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       resource: issues
       context:
@@ -34,7 +34,7 @@
       git commit {{ cidre_changelog_file }} -m "Edit changelog"
 
 - name: List issues
-  community.cidre.platform:
+  ebuildy.cidre.platform:
     platform: "{{ cidre_platform }}"
     resource: issues
     context:
@@ -61,7 +61,7 @@
     milestone_content: "{{ lookup('template', cidre_platform + '_milestone_body.md.j2') }}"
 
 - name: Gitlab API | Update milestone
-  community.cidre.platform:
+  ebuildy.cidre.platform:
     platform: "{{ cidre_platform }}"
     action: update
     context:

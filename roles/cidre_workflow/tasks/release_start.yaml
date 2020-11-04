@@ -54,7 +54,7 @@
   when: cidre_platform == 'github'
   block:
   - name: create milestone
-    community.cidre.platform:
+    ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       action: create
       context:
@@ -71,7 +71,7 @@
   when: cidre_platform == 'gitlab'
   block:
   - name: create milestone
-    community.cidre.platform:
+    ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       action: create
       context:

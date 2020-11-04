@@ -1,7 +1,7 @@
 ---
 
 - name: Get project
-  community.cidre.platform:
+  ebuildy.cidre.platform:
     platform: gitlab
     access_token: ""
     context:

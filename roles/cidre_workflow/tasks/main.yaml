@@ -26,7 +26,7 @@
   - cidre_changelog
   - cidre_issue_create
   set_fact:
-    cidre_milestone: "{{ lookup('community.cidre.milestone', cidre_version, repo=cidre_repo, platform=cidre_platform) }}"
+    cidre_milestone: "{{ lookup('ebuildy.cidre.milestone', cidre_version, repo=cidre_repo, platform=cidre_platform) }}"
 
 - name: Initialize
   tags: ["never", "cidre_init"]

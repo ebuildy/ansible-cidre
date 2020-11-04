@@ -7,7 +7,7 @@
     msg: "Current milestone = {{ cidre_milestone.id }} - {{ cidre_milestone.web_url }}"
 
 - block:
-  - community.cidre.platform:
+  - ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       context:
         repo: "{{ cidre_repo }}"

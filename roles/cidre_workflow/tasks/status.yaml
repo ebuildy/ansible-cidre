@@ -4,7 +4,7 @@
     msg: "Current version = {{ cidre_version }}, milestone = {{ cidre_milestone.title }} - {{ cidre_milestone.web_url }}"
 
 - name: List issues
-  community.cidre.platform:
+  ebuildy.cidre.platform:
     platform: "{{ cidre_platform }}"
     resource: issues
     context:

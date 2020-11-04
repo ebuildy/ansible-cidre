@@ -7,7 +7,7 @@ import sys, os
 #sys.path.append("/Users/dev/ebuildy/ansible")
 
 from ansible.module_utils import basic
-from ansible_collections.community.cidre.plugins.modules import platform
+from ansible_collections.ebuildy.cidre.plugins.modules import platform
 
 def test_urls_part_to_url():
     f = platform.urls_part_to_url

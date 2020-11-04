@@ -12,8 +12,8 @@ DOCUMENTATION = """
     version_added: "0.1.0"
     short_description: get project ID via name
     extends_documentation_fragment:
-    - community.cidre.platform_api
-    - community.cidre.url
+    - ebuildy.cidre.platform_api
+    - ebuildy.cidre.url
     description:
         - Get repo
     options:
@@ -23,7 +23,7 @@ DOCUMENTATION = """
 
 EXAMPLES = """
 - name: Display test-cidre project ID
-  debug: msg={{ lookup('community.cidre.repo', 'v1.0.0', platform='github' repo='ebuildy/test') }}
+  debug: msg={{ lookup('ebuildy.cidre.repo', 'v1.0.0', platform='github' repo='ebuildy/test') }}
 """
 
 RETURN = """

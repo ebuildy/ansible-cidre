@@ -8,7 +8,7 @@
   when: cidre_platform == "github"
   block:
   - name: Github API > Create issue
-    community.cidre.platform:
+    ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       context:
         repo: "{{ cidre_repo }}"
@@ -26,7 +26,7 @@
   when: cidre_platform == "gitlab"
   block:
   - name: Gitlab API > Create issue
-    community.cidre.platform:
+    ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       context:
         repo: "{{ cidre_repo }}"
