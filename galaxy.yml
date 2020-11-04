@@ -7,15 +7,14 @@ authors:
 description: |
   Toolkit to manipulate git flow (release branc / tagging),
   and gitlab via HTTP API (milestone / issue / release).
-licence: Apache-2.0
-licence_file: LICENCE
+license_file: LICENSE
 tags:
 - git
 - gitlab
-- git-flow
+- gitflow
 - ci
 - cd
-- continuous-integration
+- continuous_integration
 repository: https://github.com/ebuildy/ansible-cidre
 documentation: https://github.com/ebuildy/ansible-cidre
 homepage: https://github.com/ebuildy/ansible-cidre
