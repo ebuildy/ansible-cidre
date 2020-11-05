@@ -1,0 +1,18 @@
+---
+
+- set_fact:
+    cidre_platform: gitlab
+    cidre_repo: ebuildy/cidre-test
+  environment:
+    GITLAB_TOKEN: toto
+
+- name: Get project
+  block:
+  - ebuildy.cidre.platform:
+      platform: "{{ cidre_platform }}"
+      context:
+        repo: "{{ cidre_repo }}"
+    register: g_project
+  - when: g_project.content.name != 'cidre-test'
+    fail:
+      msg: Wrong project!

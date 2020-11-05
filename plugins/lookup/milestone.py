@@ -50,16 +50,21 @@ from ..modules.platform import GITLAB, GITHUB
 
 display = Display()
 
+def merge_two_dicts(x, y):
+    z = x.copy()   # start with x's keys and values
+    z.update(y)    # modifies z with y's keys and values & returns None
+    return z
+
 class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
 
-        self.set_options(direct=kwargs)
+        self.set_options(direct=merge_two_dicts(variables, kwargs))
 
-        arg_platform = self.get_option('platform')
-        arg_repo = self.get_option('repo')
-        arg_endpoint = self.get_option(arg_platform + '_url')
-        arg_access_token = self.get_option(arg_platform + '_access_token')
+        arg_platform = self.get_option('cidre_platform')
+        arg_repo = self.get_option('cidre_repo')
+        arg_endpoint = self.get_option('cidre_platform_url')
+        arg_access_token = self.get_option('cidre_platform_access_token')
 
         if arg_platform == "gitlab":
             platform = GITLAB
@@ -71,7 +76,7 @@ class LookupModule(LookupBase):
         for term in terms:
             full_url = platform['http_build_url'](arg_endpoint, "milestones", {"repo" : arg_repo}, {"state" : "all", "per_page" : 100})
 
-            display.vv(full_url)
+            display.v(full_url)
 
             http_headers = self.get_option('headers')
 

@@ -1,16 +1,23 @@
 ---
 
-- name: List projects
-  ebuildy.cidre.platform:
-    platform: github
-    access_token: ""
-    context:
-      user: ebuildy
-    resource: repos
+- set_fact:
+    cidre_platform: github
+    cidre_repo: ebuildy/ansible-cidre
+
+- name: Get project
+  block:
+  - ebuildy.cidre.platform:
+      platform: "{{ cidre_platform }}"
+      context:
+        repo: "{{ cidre_repo }}"
+    register: g_project
+  - when: g_project.content.name != 'ansible-cidre'
+    fail:
+      msg: Wrong project!
 
 - name: Get 1st cidre milestone
   set_fact:
-    g_first_milestone: "{{ lookup('ebuildy.cidre.milestone', 'v0.1.0', repo='ebuildy/ansible-cidre', platform='github') }}"
+    g_first_milestone: "{{ lookup('ebuildy.cidre.milestone', 'v0.1.0') }}"
 
 - when: g_first_milestone.title != 'v0.1.0'
   fail:

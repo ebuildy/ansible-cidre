@@ -47,21 +47,29 @@
     git tag -a {{ cidre_version }} -m "{{ cidre_version }}: {{ cidre_milestone.web_url }}"
 
 - name: git push
-  shell: "git push origin {{ item }}"
+  shell: "git push origin {{ item }} || true"
   with_items:
   - "{{ cidre_git_branch_dev }}"
   - "{{ cidre_git_branch_main }}"
   - "{{ cidre_version }}"
 
-- name: Close release
-  ebuildy.cidre.platform:
-    platform: "{{ cidre_platform }}"
-    action: update
-    context:
-      repo: "{{ cidre_repo }}"
-      milestone: "{{ cidre_milestone.id }}"
-    data:
+- name: Close milestone
+  block:
+  - set_fact:
+    when: cidre_platform == 'github'
+    milestone_data:
       state: closed
+  - set_fact:
+    when: cidre_platform == 'gitlab'
+    milestone_data:
+      state_event: close
+  - ebuildy.cidre.platform:
+      platform: "{{ cidre_platform }}"
+      action: update
+      context:
+        repo: "{{ cidre_repo }}"
+        milestone: "{{ cidre_milestone.id }}"
+      data: "{{ milestone_data }}"
 
 - name: Create Github release
   when: cidre_platform == "github"

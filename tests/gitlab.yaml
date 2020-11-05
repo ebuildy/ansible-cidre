@@ -9,10 +9,16 @@
   # ansible-playbook ./cidre.yaml --tags "issue_create" -e 'issue_title="CI: integrate cidre"' -e issue_description="cidre"
 
   vars:
-    cidre_repo: ebuildy/ansible-cidre
-    cidre_platform: github
+    cidre_platform: gitlab
+    cidre_repo: ebuildy/cidre-test
     cidre_version: "{{ lookup('file', './VERSION') | default('v0.1.0') }}"
-    cidre_git_branch_main: master
 
-  roles:
-  - cidre_workflow
+  tasks:
+
+  - name: Get 1st cidre milestone
+    set_fact:
+      g_first_milestone: "{{ lookup('ebuildy.cidre.milestone', 'v0.1.0') }}"
+
+  - when: g_first_milestone.title != 'v0.1.0'
+    fail:
+      msg: Wrong milestone!

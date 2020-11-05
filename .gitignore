@@ -1,3 +1,4 @@
+.env
 *.tar.gz
 __pycache__
 tests/output

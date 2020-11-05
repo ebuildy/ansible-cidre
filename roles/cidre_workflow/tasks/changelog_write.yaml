@@ -1,7 +1,7 @@
 ---
 
 - name: Write CHANGELOG file
-  when: cidre_changelog_file is defined and cidre_platform == "github"
+  when: cidre_changelog_file is defined
   block:
   - name: Get latest milestones
     ebuildy.cidre.platform:
@@ -22,9 +22,11 @@
       context:
         repo: "{{ cidre_repo }}"
       query_string:
-        milestone: "{{ item.number }}"
+        milestone: "{{ item.number | default(item.title) }}"
         state: all
     loop: "{{ g_milestones.content }}"
+    loop_control:
+      label: "#{{ item.id }} {{ item.title }}"
     register: g_milestones_issues
   - ansible.builtin.template:
       src: "changelog.md.j2"
@@ -40,13 +42,13 @@
     context:
       repo: "{{ cidre_repo }}"
     query_string:
-      milestone: "{{ cidre_milestone.id }}"
+      milestone: "{{ (cidre_platform == 'github') | ternary(cidre_milestone.id, cidre_milestone.title) }}"
       state: all
   register: platform_issues
 
 - name: Git change log
   shell: |
-    if [ $(git tag | wc -l) -g 0 ]
+    if [ $(git tag | wc -l) -gt 0 ]
     then
       git log $(git describe --tags --abbrev=0)..HEAD --pretty='format:[%ci] @%aN (%h) %s'
     else

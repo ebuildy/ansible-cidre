@@ -10,7 +10,7 @@
     context:
       repo: "{{ cidre_repo }}"
     query_string:
-      milestone: "{{ cidre_milestone.id }}"
+      milestone: "{{ (cidre_platform == 'github') | ternary(cidre_milestone.id, cidre_milestone.title) }}"
       state: open
   register: platform_issues
 

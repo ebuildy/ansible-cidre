@@ -7,4 +7,4 @@
     file: github_public.yaml
 
 - include_tasks:
-    file: gitlab_public.yaml
+    file: gitlab.yaml

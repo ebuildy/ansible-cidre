@@ -1,7 +1,7 @@
 ---
 
 - include_role:
-    name: ebuildy.cidre.cidre_workflow
+    name: cidre_workflow
     apply:
       tags:
         - cidre_init

@@ -19,7 +19,7 @@ author:
   - "Thomas Decaux (@ebuildy)"
 
 options:
-  platform:
+  cidre_platform:
     description:
     - gitlab / github
     type: str
@@ -27,13 +27,17 @@ options:
     - github
     - gitlab
     - bitbucket
-  endpoint:
+  cidre_platform_url:
     description:
     - Full URL to API, default to public URL
     type: str
-  access_token:
+  cidre_platform_access_token:
     description:
     - access_token to use, default to env platform_TOKEN / GITLAB_TOKEN
+    type: str
+  cidre_repo:
+    description:
+    - repo ID or path name or for github user/repo
     type: str
   resource:
     description:
@@ -145,16 +149,29 @@ def gitlab_pre_http(headers, access_token):
     headers["Content-Type"] = "application/json"
     headers["Accept"] = "application/json"
 
+    if access_token is None or len(access_token) == 0:
+        if "GITLAB_TOKEN" in os.environ:
+            access_token = os.environ["GITLAB_TOKEN"]
+
     if access_token is not None and len(access_token) > 0:
         headers['Authorization'] = "Bearer " + access_token
 
 def gitlab_api_build_url(endpoint, resource, context, query_string):
     if endpoint is None or len(endpoint) == 0:
-        endpoint = "https://gitlab.com/api/v4"
+        if "GITLAB_URL" in os.environ:
+            endpoint = os.environ["GITLAB_URL"]
+        else:
+            endpoint = "https://gitlab.com/api/v4"
 
     if "repo" in context:
         context["project"] = quote(context["repo"], safe='')
         del context["repo"]
+
+    if "state" in query_string:
+        if query_string['state'] == 'open':
+            query_string['state'] = 'opened'
+        elif query_string['state'] == 'close':
+            query_string['state'] = 'closed'
 
     return platform_api_build_url(endpoint, resource, context, query_string)
 
@@ -167,6 +184,10 @@ def github_api_build_url(endpoint, resource, context, query_string):
 def github_pre_http(headers, access_token):
     headers["Content-Type"] = "application/json"
     headers["Accept"] = "application/vnd.github.v3+json"
+
+    if access_token is None or len(access_token) == 0:
+        if "GITHUB_TOKEN" in os.environ:
+            access_token = os.environ["GITHUB_TOKEN"]
 
     if access_token is not None and len(access_token) > 0:
         headers['Authorization'] = "token " + access_token
@@ -235,17 +256,13 @@ def run_module():
         else:
             arg_endpoint = ""
 
-    if "context_fix" in platform:
-        platform["context_fix"](arg_context)
+    #if "repo" not in arg_context and arg_repo is not None and len(arg_repo) > 0:
+    #    arg_context["repo"] = arg_repo
 
     http_method = platform['http_methods'][arg_action]
     http_url = platform['http_build_url'](arg_endpoint, arg_resource, arg_context, arg_query_string)
     http_query_body = None
     http_headers = {}
-
-    if arg_access_token is None or len(arg_access_token) == 0:
-        if platform['env']['token'] in os.environ:
-            arg_access_token = os.environ[platform['env']['token']]
 
     platform['http_pre_hook'](http_headers, arg_access_token)
 
