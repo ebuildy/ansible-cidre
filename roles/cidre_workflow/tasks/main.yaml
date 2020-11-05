@@ -16,6 +16,25 @@
       msg: "Please clean git status: {{ git_status.stdout }}"
     when: git_status.stdout != ""
 
+- name: Check platform API authorized
+  tags:
+  - never
+  - cidre_release_start
+  - cidre_release_end
+  - cidre_changelog
+  - cidre_bump_patch
+  - cidre_bump_minor
+  - cidre_bump_major
+  - cidre_info
+  - cidre_status
+  block:
+  - ebuildy.cidre.platform:
+      platform: "{{ cidre_platform }}"
+      resource: user
+    register: g_user
+  - debug:
+      msg: "You are connected to {{ cidre_platform }} as {{ g_user.content.name }} ({{ g_user.url }})"
+
 - name: Get current milestone
   tags:
   - never
