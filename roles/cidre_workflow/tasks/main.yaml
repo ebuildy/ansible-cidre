@@ -32,8 +32,9 @@
       platform: "{{ cidre_platform }}"
       resource: user
     register: g_user
-  - debug:
-      msg: "You are connected to {{ cidre_platform }} as {{ g_user.content.name }} ({{ g_user.url }})"
+  - ebuildy.cidre.print:
+      format: md
+      msg: "Hi **{{ g_user.content.name }}**, you are connected to {{ cidre_platform }} ({{ g_user.url }})"
 
 - name: Get current milestone
   tags:

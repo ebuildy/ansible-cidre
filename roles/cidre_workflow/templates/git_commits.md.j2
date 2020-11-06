@@ -1,0 +1,7 @@
+{% if git_last_tag.stdout | length > 0 %}git changes from **tag {{ git_last_tag.stdout }}**:{% else %}
+git changes from repo start: {% endif %}
+
+
+{% for change in git_changes.stdout_lines %}
+* {{ change }}
+{% endfor %}

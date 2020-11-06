@@ -3,19 +3,46 @@
 - debug:
     msg: "Current version = {{ cidre_version }}, milestone = {{ cidre_milestone.title }} - {{ cidre_milestone.web_url }}"
 
-- name: List issues
+- name: ""
   ebuildy.cidre.platform:
     platform: "{{ cidre_platform }}"
-    resource: issues
+    resource: milestones
     context:
       repo: "{{ cidre_repo }}"
     query_string:
-      milestone: "{{ (cidre_platform == 'github') | ternary(cidre_milestone.id, cidre_milestone.title) }}"
+      per_page: 50
+      sort: due_on
+      direction: desc
       state: open
-  register: platform_issues
+  register: g_milestones
 
-- loop: "{{ platform_issues.content }}"
+- name: ""
+  loop: "{{ g_milestones.content }}"
   loop_control:
     label: ""
-  debug:
-    msg: "#{{ item.number | default(item.id) }} - {{ item.title }}"
+    loop_var: g_milestone
+  include_tasks: milestone_status.yaml
+
+- name: Git change log
+  block:
+  - shell: |
+      if [ $(git tag | wc -l) -gt 0 ]
+      then
+        git describe --tags --abbrev=0
+      fi
+
+      exit 0
+    register: git_last_tag
+  - shell: |
+      if [ $(git tag | wc -l) -gt 0 ]
+      then
+        git log $(git describe --tags --abbrev=0)..HEAD --pretty='format:[%ci] @%aN (%h) %s'
+      else
+        git log --pretty='format:[%ci] @%aN (%h) %s'
+      fi
+
+      exit 0
+    register: git_changes
+  - ebuildy.cidre.print:
+      format: markdown
+      msg: "{{ lookup('template', 'git_commits.md.j2') }}"

@@ -1,0 +1,15 @@
+---
+
+- ebuildy.cidre.platform:
+    platform: "{{ cidre_platform }}"
+    resource: issues
+    context:
+      repo: "{{ cidre_repo }}"
+    query_string:
+      milestone: "{{ g_milestone.number | default(g_milestone.title) }}"
+      state: open
+  register: g_status
+
+- ebuildy.cidre.print:
+    format: markdown
+    msg: "{{ lookup('template', 'milestone_status.md.j2') }}"
