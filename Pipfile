@@ -11,6 +11,7 @@ pytest = "*"
 ansible-test = "*"
 pytest-xdist = "*"
 pycodestyle = "*"
+pygments = "*"
 
 [requires]
 python_version = "2.7"
