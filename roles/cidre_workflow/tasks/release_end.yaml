@@ -55,14 +55,14 @@
 
 - name: Close milestone
   block:
-  - set_fact:
-    when: cidre_platform == 'github'
-    milestone_data:
-      state: closed
-  - set_fact:
-    when: cidre_platform == 'gitlab'
-    milestone_data:
-      state_event: close
+  - when: cidre_platform == 'github'
+    set_fact:
+      milestone_data:
+        state: closed
+  - when: cidre_platform == 'gitlab'
+    set_fact:
+      milestone_data:
+        state_event: close
   - ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       action: update
