@@ -28,10 +28,12 @@ import sys, json
 style = 'vim'
 pprint = print
 
-import pygments
-from pygments import highlight
-from pygments.lexers import JsonLexer, MarkdownLexer
-from pygments.formatters import Terminal256Formatter
+try:
+    from pygments import highlight
+    from pygments.lexers import JsonLexer, MarkdownLexer
+    from pygments.formatters import Terminal256Formatter
+except ImportError:
+    pass  # Handled by AnsibleAWSModule
 
 FORMAT_JSON = 'json'
 FORMAT_MARKDOWN = 'md'
