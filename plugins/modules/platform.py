@@ -287,7 +287,11 @@ def run_module():
         content = info.pop('body', '')
 
     http_response_status = int(info['status'])
-    http_content_data = json.loads(content)
+
+    try:
+        http_content_data = json.loads(content)
+    except ValueError as e:
+        module.fail_json(msg="JSON decode error: %s" % (content))
 
     if http_response_status >= 400 and http_response_status < 500:
         module.fail_json(msg="Platform error [%s] when %s %s : %s" % (info['status'], http_method, http_url, content))

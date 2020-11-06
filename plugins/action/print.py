@@ -22,18 +22,16 @@ from ansible.errors import AnsibleUndefinedVariable
 from ansible.module_utils.six import string_types
 from ansible.module_utils._text import to_text
 from ansible.plugins.action import ActionBase
+from ansible.errors import AnsibleError
 
-import sys, json
-
-style = 'vim'
-pprint = print
+import json
 
 try:
     from pygments import highlight
     from pygments.lexers import JsonLexer, MarkdownLexer
     from pygments.formatters import Terminal256Formatter
 except ImportError:
-    pass  # Handled by AnsibleAWSModule
+    raise AnsibleError("The action print requires pygments.")
 
 FORMAT_JSON = 'json'
 FORMAT_MARKDOWN = 'md'
