@@ -34,7 +34,7 @@
       resource: issues
       data:
         title: "{{ title }}"
-        description: "{{ body }}"
+        description: "{{ body | default('') }}"
         milestone_id: "{{ cidre_milestone.id }}"
     register: g_issue
   - debug:

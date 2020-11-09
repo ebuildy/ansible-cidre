@@ -143,6 +143,14 @@ def platform_api_build_url(endpoint, resource, context, query_string):
 
     return full_url
 
+def get_endpoint(arg_endpoint, default):
+    if arg_endpoint is not None and len(arg_endpoint) > 0:
+        return arg_endpoint
+
+    if "CIDRE_URL" in os.environ:
+        return os.environ["CIDRE_URL"]
+
+    return default
 
 
 def gitlab_pre_http(headers, access_token):
@@ -157,11 +165,7 @@ def gitlab_pre_http(headers, access_token):
         headers['Authorization'] = "Bearer " + access_token
 
 def gitlab_api_build_url(endpoint, resource, context, query_string):
-    if endpoint is None or len(endpoint) == 0:
-        if "GITLAB_URL" in os.environ:
-            endpoint = os.environ["GITLAB_URL"]
-        else:
-            endpoint = "https://gitlab.com/api/v4"
+    endpoint = get_endpoint(endpoint, "https://gitlab.com/api/v4")
 
     if "repo" in context:
         context["project"] = quote(context["repo"], safe='')
@@ -176,8 +180,7 @@ def gitlab_api_build_url(endpoint, resource, context, query_string):
     return platform_api_build_url(endpoint, resource, context, query_string)
 
 def github_api_build_url(endpoint, resource, context, query_string):
-    if endpoint is None or len(endpoint) == 0:
-        endpoint = "https://api.github.com"
+    endpoint = get_endpoint(endpoint, "https://api.github.com")
 
     return platform_api_build_url(endpoint, resource, context, query_string)
 
@@ -250,12 +253,6 @@ def run_module():
     else:
         platform = GITHUB
 
-    if arg_endpoint is None or len(arg_endpoint) == 0:
-        if platform['env']['url'] in os.environ:
-            arg_endpoint = os.environ[platform['env']['url']]
-        else:
-            arg_endpoint = ""
-
     #if "repo" not in arg_context and arg_repo is not None and len(arg_repo) > 0:
     #    arg_context["repo"] = arg_repo
 
@@ -264,12 +261,16 @@ def run_module():
     http_query_body = None
     http_headers = {}
 
+    #module.warn(http_url)
+
     platform['http_pre_hook'](http_headers, arg_access_token)
 
     start = datetime.datetime.utcnow()
 
     if len(arg_data) > 0:
         http_query_body = json.dumps(arg_data)
+
+    module.params['validate_certs'] = False
 
     resp, info = fetch_url(
         module,
@@ -279,6 +280,11 @@ def run_module():
         data=http_query_body
     )
 
+    http_response_status = int(info['status'])
+
+    if (http_response_status <= 0 or (http_response_status >= 400 and http_response_status < 500)) and "msg" in info:
+        module.warn(info["msg"])
+
     try:
         content = resp.read()
     except AttributeError:
@@ -286,15 +292,14 @@ def run_module():
         # may have been stored in the info as 'body'
         content = info.pop('body', '')
 
-    http_response_status = int(info['status'])
+
+    if http_response_status <= 0 or (http_response_status >= 400 and http_response_status < 500):
+        module.fail_json(msg="Platform error [%s] when %s %s : %s" % (info['status'], http_method, http_url, content))
 
     try:
         http_content_data = json.loads(content)
     except ValueError as e:
-        module.fail_json(msg="JSON decode error: %s" % (content))
-
-    if http_response_status >= 400 and http_response_status < 500:
-        module.fail_json(msg="Platform error [%s] when %s %s : %s" % (info['status'], http_method, http_url, content))
+        module.fail_json(msg="[%s] JSON decode error: %s" % (http_response_status, content))
 
     uresp = {
         "url" : http_url,

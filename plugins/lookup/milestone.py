@@ -84,7 +84,7 @@ class LookupModule(LookupBase):
 
             try:
                 response = open_url(full_url,
-                                    validate_certs=self.get_option('validate_certs'),
+                                    validate_certs=False,#self.get_option('validate_certs'),
                                     use_proxy=self.get_option('use_proxy'),
                                     url_username=self.get_option('username'),
                                     url_password=self.get_option('password'),
