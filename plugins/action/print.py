@@ -23,15 +23,21 @@ from ansible.module_utils.six import string_types
 from ansible.module_utils._text import to_text
 from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleError
+from ansible.utils.display import Display
 
 import json
+
+display = Display()
+
+USE_PYGMENTS = True
 
 try:
     from pygments import highlight
     from pygments.lexers import JsonLexer, MarkdownLexer
     from pygments.formatters import Terminal256Formatter
 except ImportError:
-    raise AnsibleError("The action print requires pygments.")
+    display.v("<!> pygments not found, fallback to basic print <!>")
+    USE_PYGMENTS = False
 
 FORMAT_JSON = 'json'
 FORMAT_MARKDOWN = 'md'
@@ -44,10 +50,16 @@ class ActionModule(ActionBase):
     _VALID_ARGS = frozenset(('msg', 'var', 'format'))
 
     def markdown_out(self, data):
-        print(highlight(data, MarkdownLexer(), Terminal256Formatter())[0:-1])
+        if USE_PYGMENTS:
+            print(highlight(data, MarkdownLexer(), Terminal256Formatter())[0:-1])
+        else:
+            print(data)
 
     def json_out(self, data, pretty=False, mono=False, piped_out=False):
-        print(highlight(json.dumps(data, indent=2), JsonLexer(), Terminal256Formatter())[0:-1])
+        if USE_PYGMENTS:
+            print(highlight(json.dumps(data, indent=2), JsonLexer(), Terminal256Formatter())[0:-1])
+        else:
+            print(json.dumps(data, indent=2))
 
     def run(self, tmp=None, task_vars=None):
         if task_vars is None:
