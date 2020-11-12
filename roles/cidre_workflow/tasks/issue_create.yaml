@@ -11,7 +11,7 @@
     ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       context:
-        repo: "{{ cidre_repo }}"
+      - repo: "{{ cidre_repo }}"
       action: create
       resource: issues
       data:
@@ -29,7 +29,7 @@
     ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       context:
-        repo: "{{ cidre_repo }}"
+      - repo: "{{ cidre_repo }}"
       action: create
       resource: issues
       data:

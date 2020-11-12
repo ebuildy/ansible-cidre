@@ -4,7 +4,7 @@
     platform: "{{ cidre_platform }}"
     resource: issues
     context:
-      repo: "{{ cidre_repo }}"
+    - repo: "{{ cidre_repo }}"
     query_string:
       milestone: "{{ g_milestone.number | default(g_milestone.title) }}"
       state: open

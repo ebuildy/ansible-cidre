@@ -67,8 +67,8 @@
       platform: "{{ cidre_platform }}"
       action: update
       context:
-        repo: "{{ cidre_repo }}"
-        milestone: "{{ cidre_milestone.id }}"
+      - repo: "{{ cidre_repo }}"
+      - milestone: "{{ cidre_milestone.id }}"
       data: "{{ milestone_data }}"
 
 - name: Create Github release
@@ -77,7 +77,7 @@
   - ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       context:
-        repo: "{{ cidre_repo }}"
+      - repo: "{{ cidre_repo }}"
       action: create
       resource: releases
       data:
@@ -94,7 +94,7 @@
   - ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       context:
-        repo: "{{ cidre_repo }}"
+      - repo: "{{ cidre_repo }}"
       action: create
       resource: releases
       data:
