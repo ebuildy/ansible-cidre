@@ -127,11 +127,12 @@ def platform_api_build_url(endpoint, resource, context, query_string):
 
     urlParts = []
 
-    for c_name, c_value in context.items():
-        r = c_name + "s"
+    for c_item in context:
+        for c_name, c_value in c_item.items():
+            r = c_name + "s"
 
-        urlParts.append(r)
-        urlParts.append(str(c_value))
+            urlParts.append(r)
+            urlParts.append(str(c_value))
 
     if resource is not None and len(resource) > 0:
         urlParts.append(resource)
@@ -164,12 +165,14 @@ def gitlab_pre_http(headers, access_token):
     if access_token is not None and len(access_token) > 0:
         headers['Authorization'] = "Bearer " + access_token
 
+
 def gitlab_api_build_url(endpoint, resource, context, query_string):
     endpoint = get_endpoint(endpoint, "https://gitlab.com/api/v4")
 
-    if "repo" in context:
-        context["project"] = quote(context["repo"], safe='')
-        del context["repo"]
+    for item in context:
+        if "repo" in item:
+            item["project"] = quote(item["repo"], safe='')
+            del item["repo"]
 
     if "state" in query_string:
         if query_string['state'] == 'open':

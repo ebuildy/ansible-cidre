@@ -21,9 +21,9 @@ def test_gitlab_api_build_url():
 
     assert f("G", "projects", {}, { }) == "G/projects"
     assert f("G", "projects", {}, { "type" : "private"}) == "G/projects?type=private"
-    assert f("G", None, { "project" : 1}, {}) == "G/projects/1"
+    assert f("G", None, [{ "project" : 1}], {}) == "G/projects/1"
 
-    assert f("G", "milestones", { "project" : 1}, { }) == "G/projects/1/milestones"
-    assert f("G", "milestones", { "project" : 1}, { "type" : "private"}) == "G/projects/1/milestones?type=private"
+    assert f("G", "milestones", [{ "project" : 1}], { }) == "G/projects/1/milestones"
+    assert f("G", "milestones", [{ "project" : 1}, { "type" : "private"}]) == "G/projects/1/milestones?type=private"
 
-    assert f("G", None, { "project" : 1, "milestone" : 1}, { }) == "G/projects/1/milestones/1"
+    assert f("G", None, [{ "project" : 1, "milestone" : 1}], { }) == "G/projects/1/milestones/1"

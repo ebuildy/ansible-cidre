@@ -57,7 +57,7 @@
       platform: "{{ cidre_platform }}"
       action: create
       context:
-        repo: "{{ cidre_repo }}"
+      - repo: "{{ cidre_repo }}"
       resource: milestones
       data:
         title: "{{ cidre_version_to }}"

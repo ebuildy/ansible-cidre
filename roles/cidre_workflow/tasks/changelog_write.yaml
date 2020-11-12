@@ -8,7 +8,7 @@
       platform: "{{ cidre_platform }}"
       resource: milestones
       context:
-        repo: "{{ cidre_repo }}"
+      - repo: "{{ cidre_repo }}"
       query_string:
         per_page: 50
         sort: due_on
@@ -20,7 +20,7 @@
       platform: "{{ cidre_platform }}"
       resource: issues
       context:
-        repo: "{{ cidre_repo }}"
+      - repo: "{{ cidre_repo }}"
       query_string:
         milestone: "{{ item.number | default(item.title) }}"
         state: all
@@ -40,7 +40,7 @@
     platform: "{{ cidre_platform }}"
     resource: issues
     context:
-      repo: "{{ cidre_repo }}"
+    - repo: "{{ cidre_repo }}"
     query_string:
       milestone: "{{ (cidre_platform == 'github') | ternary(cidre_milestone.id, cidre_milestone.title) }}"
       state: all
@@ -67,8 +67,8 @@
     platform: "{{ cidre_platform }}"
     action: update
     context:
-      repo: "{{ cidre_repo }}"
-      milestone: "{{ cidre_milestone.id }}"
+    - repo: "{{ cidre_repo }}"
+    - milestone: "{{ cidre_milestone.id }}"
     data:
       description: "{{ milestone_content }}"
 

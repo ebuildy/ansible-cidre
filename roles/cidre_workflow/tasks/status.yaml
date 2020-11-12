@@ -8,7 +8,7 @@
     platform: "{{ cidre_platform }}"
     resource: milestones
     context:
-      repo: "{{ cidre_repo }}"
+    - repo: "{{ cidre_repo }}"
     query_string:
       per_page: 50
       sort: due_on

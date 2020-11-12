@@ -10,7 +10,7 @@
   - ebuildy.cidre.platform:
       platform: "{{ cidre_platform }}"
       context:
-        repo: "{{ cidre_repo }}"
+      - repo: "{{ cidre_repo }}"
     register: g_project
   - debug:
       var: g_project
