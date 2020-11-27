@@ -25,9 +25,6 @@
   ebuildy.cidre.platform: "{{ search_query }}"
   register: platform_issues
 
-- debug:
-    var: platform_issues
-
 - name: Git change log
   shell: |
     if [ $(git tag | wc -l) -gt 0 ]
