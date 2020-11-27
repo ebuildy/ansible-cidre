@@ -21,7 +21,7 @@
     ebuildy.cidre.platform:
       provider: "{{ cidre_issue_provider }}"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
-      resource: search
+      resource: issues
       context:
       - repo: "{{ cidre_repo }}"
       query_string:

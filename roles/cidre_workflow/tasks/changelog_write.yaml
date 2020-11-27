@@ -10,5 +10,5 @@
 ##
 # Edit milestone content
 ##
-#- include_tasks:
-#    file: "changelog_update_ms.yaml"
+- include_tasks:
+    file: "changelog_update_ms.yaml"
