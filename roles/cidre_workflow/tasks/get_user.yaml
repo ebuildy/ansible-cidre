@@ -1,0 +1,23 @@
+---
+
+- when: _cidre_provider == "github" or _cidre_provider == "gitlab"
+  block:
+  - ebuildy.cidre.platform:
+      provider: "{{ _cidre_provider }}"
+      provider_endpoint: "{{ _cidre_provider_endpoint }}"
+      resource: user
+    register: g_user
+  - ebuildy.cidre.print:
+      format: md
+      msg: "Hi **{{ g_user.content.name }}**, you are connected to {{ _cidre_provider }} ({{ g_user.url }})"
+
+- when: _cidre_provider == "jira"
+  block:
+  - ebuildy.cidre.platform:
+      provider: "{{ _cidre_provider }}"
+      provider_endpoint: "{{ _cidre_provider_endpoint }}"
+      resource: session
+    register: g_user
+  - ebuildy.cidre.print:
+      format: md
+      msg: "Hi **{{ g_user.content.name }}**, you are connected to {{ _cidre_provider }} ({{ g_user.url }})"

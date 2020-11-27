@@ -1,5 +1,14 @@
+cidre_provider: github
+cidre_provider_endpoint:
+
 cidre_git_branch_main: main
 cidre_git_branch_dev: develop
 cidre_git_branch_release_prefix: release
 cidre_version_file: './VERSION'
 cidre_changelog_file: './CHANGELOG'
+
+cidre_issue_provider: github
+cidre_issue_repo:
+cidre_issue_provider_endpoint:
+cidre_issue_provider_front: https://github.com
+cidre_provider: github

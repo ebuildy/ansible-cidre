@@ -55,16 +55,17 @@
 
 - name: Close milestone
   block:
-  - when: cidre_platform == 'github'
+  - when: cidre_provider == 'github'
     set_fact:
       milestone_data:
         state: closed
-  - when: cidre_platform == 'gitlab'
+  - when: cidre_provider == 'gitlab'
     set_fact:
       milestone_data:
         state_event: close
   - ebuildy.cidre.platform:
-      platform: "{{ cidre_platform }}"
+      provider: "{{ cidre_provider }}"
+      provider_endpoint: "{{ cidre_provider_endpoint }}"
       action: update
       context:
       - repo: "{{ cidre_repo }}"
@@ -72,10 +73,11 @@
       data: "{{ milestone_data }}"
 
 - name: Create Github release
-  when: cidre_platform == "github"
+  when: cidre_provider == "github"
   block:
   - ebuildy.cidre.platform:
-      platform: "{{ cidre_platform }}"
+      provider: github
+      provider_endpoint: "{{ cidre_provider_endpoint }}"
       context:
       - repo: "{{ cidre_repo }}"
       action: create
@@ -89,10 +91,11 @@
       msg: "Release created: {{ g_release.content.html_url }}"
 
 - name: Create Gitlab release
-  when: cidre_platform == "gitlab"
+  when: cidre_provider == "gitlab"
   block:
   - ebuildy.cidre.platform:
-      platform: "{{ cidre_platform }}"
+      provider: gitlab
+      provider_endpoint: "{{ cidre_provider_endpoint }}"
       context:
       - repo: "{{ cidre_repo }}"
       action: create
@@ -104,7 +107,7 @@
         milestone: "{{ cidre_milestone.id }}"
     register: g_release
   - debug:
-      msg: "Release created: {{ g_release.content.web_url }}"
+      msg: "Release created: {{ g_release.content._links.self }}"
 
 - name: Delete local and remote release branch
   shell: |

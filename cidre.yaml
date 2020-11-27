@@ -9,8 +9,12 @@
   # ansible-playbook ./cidre.yaml --tags "issue_create" -e 'issue_title="CI: integrate cidre"' -e issue_description="cidre"
 
   vars:
+    cidre_provider: github
     cidre_repo: ebuildy/ansible-cidre
-    cidre_platform: github
+
+    cidre_issue_provider: github
+    cidre_issue_repo: ebuildy/ansible-cidre
+
     cidre_version: "{{ lookup('file', './VERSION') | default('v0.1.0') }}"
     cidre_git_branch_main: master
 

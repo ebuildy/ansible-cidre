@@ -1,0 +1,59 @@
+---
+
+- when: cidre_issue_provider == "jira"
+  set_fact:
+    search_query:
+      provider: "{{ cidre_issue_provider }}"
+      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      resource: search
+      query_string:
+        jql: "project={{cidre_issue_repo}} AND fixVersion={{ cidre_issue_component }}-{{ cidre_milestone.title }}"
+
+- when: cidre_issue_provider != "jira"
+  set_fact:
+    search_query:
+      provider: "{{ cidre_issue_provider }}"
+      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      resource: issues
+      context:
+      - repo: "{{ cidre_repo }}"
+      query_string:
+        milestone: "{{ (cidre_provider == 'github') | ternary(cidre_milestone.id, cidre_milestone.title) }}"
+        state: all
+
+- name: "{{ cidre_issue_provider }} > List issues"
+  ebuildy.cidre.platform: "{{ search_query }}"
+  register: platform_issues
+
+- debug:
+    var: platform_issues
+
+- name: Git change log
+  shell: |
+    if [ $(git tag | wc -l) -gt 0 ]
+    then
+      git log $(git describe --tags --abbrev=0)..HEAD --pretty='format:[%ci] @%aN (%h) %s'
+    else
+      git log --pretty='format:[%ci] @%aN (%h) %s'
+    fi
+
+    exit 0
+  register: git_changes
+
+- name: Build content
+  set_fact:
+    milestone_content: "{{ lookup('template', cidre_issue_provider + '_milestone_body.md.j2') }}"
+
+- name: "{{ cidre_provider }} > Update milestone"
+  ebuildy.cidre.platform:
+    provider: "{{ cidre_provider }}"
+    provider_endpoint: "{{ cidre_provider_endpoint }}"
+    action: update
+    context:
+    - repo: "{{ cidre_repo }}"
+    - milestone: "{{ cidre_milestone.id }}"
+    data:
+      description: "{{ milestone_content }}"
+
+- debug:
+    msg: "Milestone updated: {{ cidre_milestone.web_url }}"

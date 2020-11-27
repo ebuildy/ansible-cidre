@@ -3,8 +3,8 @@
 - name: Check git is clean
   tags:
   - never
-  - cidre_release_start
-  - cidre_release_end
+  - cidre_ms_open
+  - cidre_ms_close
   - cidre_changelog
   - cidre_bump_patch
   - cidre_bump_minor
@@ -19,8 +19,8 @@
 - name: Check platform API authorized
   tags:
   - never
-  - cidre_release_start
-  - cidre_release_end
+  - cidre_ms_open
+  - cidre_ms_close
   - cidre_changelog
   - cidre_bump_patch
   - cidre_bump_minor
@@ -28,13 +28,17 @@
   - cidre_info
   - cidre_status
   block:
-  - ebuildy.cidre.platform:
-      platform: "{{ cidre_platform }}"
-      resource: user
-    register: g_user
-  - ebuildy.cidre.print:
-      format: md
-      msg: "Hi **{{ g_user.content.name }}**, you are connected to {{ cidre_platform }} ({{ g_user.url }})"
+  - include_tasks:
+      file: "get_user.yaml"
+    vars:
+      _cidre_provider: "{{ cidre_provider}}"
+      _cidre_provider_endpoint: "{{ cidre_provider_endpoint }}"
+  - when: cidre_issue_provider != cidre_provider
+    include_tasks:
+      file: "get_user.yaml"
+    vars:
+      _cidre_provider: "{{ cidre_issue_provider}}"
+      _cidre_provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
 
 - name: Get current milestone
   tags:
@@ -42,11 +46,11 @@
   - cidre_init
   - cidre_info
   - cidre_status
-  - cidre_release_end
+  - cidre_ms_close
   - cidre_changelog
   - cidre_issue_create
   set_fact:
-    cidre_milestone: "{{ lookup('ebuildy.cidre.milestone', cidre_version, repo=cidre_repo, platform=cidre_platform) }}"
+    cidre_milestone: "{{ lookup('ebuildy.cidre.milestone', cidre_version, repo=cidre_repo, provider=cidre_provider, provider_endpoint=cidre_provider_endpoint) }}"
 
 - name: Initialize
   tags: ["never", "cidre_init"]
@@ -54,14 +58,8 @@
   - include_tasks:
       file: init.yaml
 
-- name: Info
-  tags: ["never", "cidre_info"]
-  block:
-  - include_tasks:
-      file: info.yaml
-
 - name: Status
-  tags: ["never", "cidre_status"]
+  tags: ["never", "cidre_status", "cidre_info"]
   block:
   - include_tasks:
       file: status.yaml
@@ -71,7 +69,7 @@
   - cidre_bump_patch
   - cidre_bump_minor
   - cidre_bump_major
-  - cidre_release_start
+  - cidre_ms_open
   - never
   block:
   - include_tasks:
@@ -90,7 +88,7 @@
       file: changelog_write.yaml
 
 - name: Finish release
-  tags: ["cidre_release_end", "never"]
+  tags: ["cidre_ms_close", "never"]
   block:
   - include_tasks:
       file: release_end.yaml

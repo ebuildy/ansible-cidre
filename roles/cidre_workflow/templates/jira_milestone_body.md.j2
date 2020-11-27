@@ -1,0 +1,12 @@
+## Issues:
+{% if platform_issues.content.issues is defined %}
+{% for issue in platform_issues.content.issues %}
+* {{ issue.key }} {{ issue.fields.summary }} @{{ issue.fields.creator.name }} - {{ cidre_issue_provider_front }}/browse/{{ issue.key }}
+{% endfor %}
+{% endif %}
+
+## Changes:
+
+{% for change in git_changes.stdout_lines %}
+* {{ change }}
+{% endfor %}

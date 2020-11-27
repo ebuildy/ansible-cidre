@@ -1,13 +1,24 @@
 ---
 
-- ebuildy.cidre.platform:
-    platform: "{{ cidre_platform }}"
+- when: cidre_issue_provider == "github" or cidre_issue_provider == "gitlab"
+  ebuildy.cidre.platform:
+    provider: "{{ cidre_issue_provider }}"
+    provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
     resource: issues
     context:
     - repo: "{{ cidre_repo }}"
     query_string:
       milestone: "{{ g_milestone.number | default(g_milestone.title) }}"
       state: open
+  register: g_status
+
+- when: cidre_issue_provider == "jira"
+  ebuildy.cidre.platform:
+    provider: "{{ cidre_issue_provider }}"
+    provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+    resource: search
+    query_string:
+      jql: "project={{cidre_issue_repo}} AND fixVersion={{ cidre_issue_component }}-{{ cidre_version }}"
   register: g_status
 
 - ebuildy.cidre.print:

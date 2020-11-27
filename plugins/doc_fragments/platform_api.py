@@ -10,27 +10,22 @@ class ModuleDocFragment(object):
 
     DOCUMENTATION = """
 options:
-  cidre_platform:
-    description: gitlab/github
-    type: string
-    default: "github"
-    env:
-    - name: CIDRE_PLATFORM
-  cidre_repo:
+  provider:
+    description:
+    - gitlab / github / jira
+    type: str
+    choices:
+    - github
+    - gitlab
+    - bitbucket
+    - jira
+  repo:
     description: repo name or numerical ID
     type: string
-    default: ""
-    env:
-    - name: CIDRE_REPO
-  cidre_platform_url:
+  provider_endpoint:
     description: API endpoint
     type: string
-    default: ""
-    env:
-    - name: CIDRE_URL
-  cidre_platform_access_token:
+  provider_access_token:
     description: access_token
     type: string
-    env:
-    - name: CIDRE_ACCESS_TOKEN
     """

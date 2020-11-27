@@ -1,76 +1,14 @@
 ---
 
-- name: Write CHANGELOG file
-  when: cidre_changelog_file is defined
-  block:
-  - name: Get latest milestones
-    ebuildy.cidre.platform:
-      platform: "{{ cidre_platform }}"
-      resource: milestones
-      context:
-      - repo: "{{ cidre_repo }}"
-      query_string:
-        per_page: 50
-        sort: due_on
-        direction: desc
-        state: all
-    register: g_milestones
-  - name: Get milestones issues
-    ebuildy.cidre.platform:
-      platform: "{{ cidre_platform }}"
-      resource: issues
-      context:
-      - repo: "{{ cidre_repo }}"
-      query_string:
-        milestone: "{{ item.number | default(item.title) }}"
-        state: all
-    loop: "{{ g_milestones.content }}"
-    loop_control:
-      label: "#{{ item.id }} {{ item.title }}"
-    register: g_milestones_issues
-  - ansible.builtin.template:
-      src: "changelog.md.j2"
-      dest: "{{ cidre_changelog_file }}"
-  - shell: |
-      git add {{ cidre_changelog_file }}
-      git commit {{ cidre_changelog_file }} -m "Edit changelog"
+##
+# Write CHANGELOG file
+##
+- when: cidre_changelog_file is defined
+  include_tasks:
+    file: "changelog_write_file.yaml"
 
-- name: List issues
-  ebuildy.cidre.platform:
-    platform: "{{ cidre_platform }}"
-    resource: issues
-    context:
-    - repo: "{{ cidre_repo }}"
-    query_string:
-      milestone: "{{ (cidre_platform == 'github') | ternary(cidre_milestone.id, cidre_milestone.title) }}"
-      state: all
-  register: platform_issues
-
-- name: Git change log
-  shell: |
-    if [ $(git tag | wc -l) -gt 0 ]
-    then
-      git log $(git describe --tags --abbrev=0)..HEAD --pretty='format:[%ci] @%aN (%h) %s'
-    else
-      git log --pretty='format:[%ci] @%aN (%h) %s'
-    fi
-
-    exit 0
-  register: git_changes
-
-- name: Build content
-  set_fact:
-    milestone_content: "{{ lookup('template', cidre_platform + '_milestone_body.md.j2') }}"
-
-- name: Gitlab API | Update milestone
-  ebuildy.cidre.platform:
-    platform: "{{ cidre_platform }}"
-    action: update
-    context:
-    - repo: "{{ cidre_repo }}"
-    - milestone: "{{ cidre_milestone.id }}"
-    data:
-      description: "{{ milestone_content }}"
-
-- debug:
-    msg: "Milestone updated: {{ cidre_milestone.web_url }}"
+##
+# Edit milestone content
+##
+#- include_tasks:
+#    file: "changelog_update_ms.yaml"

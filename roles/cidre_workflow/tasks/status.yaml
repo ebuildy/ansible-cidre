@@ -5,15 +5,16 @@
 
 - name: ""
   ebuildy.cidre.platform:
-    platform: "{{ cidre_platform }}"
+    provider: "{{ cidre_provider }}"
+    provider_endpoint: "{{ cidre_provider_endpoint }}"
     resource: milestones
     context:
     - repo: "{{ cidre_repo }}"
     query_string:
-      per_page: 50
+      per_page: 10
       sort: due_on
       direction: desc
-      state: "{{ (cidre_platform == 'github') | ternary('open', 'active') }}"
+      state: "{{ (cidre_provider == 'github') | ternary('open', 'active') }}"
   register: g_milestones
 
 - name: ""

@@ -46,7 +46,7 @@ from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.module_utils.urls import open_url, ConnectionError, SSLValidationError
 from ansible.utils.display import Display
 
-from ..modules.platform import GITLAB, GITHUB
+from ..modules.platform import GITLAB, GITHUB, JIRA
 
 display = Display()
 
@@ -61,13 +61,14 @@ class LookupModule(LookupBase):
 
         self.set_options(direct=merge_two_dicts(variables, kwargs))
 
-        arg_platform = self.get_option('cidre_platform')
-        arg_repo = self.get_option('cidre_repo')
-        arg_endpoint = self.get_option('cidre_platform_url')
-        arg_access_token = self.get_option('cidre_platform_access_token')
+        arg_platform = self.get_option('provider')
+        arg_repo = self.get_option('repo')
+        arg_endpoint = self.get_option('provider_endpoint')
 
         if arg_platform == "gitlab":
             platform = GITLAB
+        elif arg_platform == "jira":
+            platform = JIRA
         else:
             platform = GITHUB
 
@@ -80,7 +81,7 @@ class LookupModule(LookupBase):
 
             http_headers = self.get_option('headers')
 
-            platform['http_pre_hook'](http_headers, arg_access_token)
+            platform['http_pre_hook'](http_headers, "")
 
             try:
                 response = open_url(full_url,

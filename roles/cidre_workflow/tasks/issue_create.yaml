@@ -5,13 +5,14 @@
     msg: "variable title is missing!"
 
 - name: create issue
-  when: cidre_platform == "github"
+  when: cidre_issue_provider == "github"
   block:
   - name: Github API > Create issue
     ebuildy.cidre.platform:
-      platform: "{{ cidre_platform }}"
+      provider: "{{ cidre_issue_provider }}"
+      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       context:
-      - repo: "{{ cidre_repo }}"
+      - repo: "{{ cidre_issue_repo }}"
       action: create
       resource: issues
       data:
@@ -23,13 +24,14 @@
       msg: "Issue created! {{ g_issue.content.html_url }}"
 
 - name: create issue
-  when: cidre_platform == "gitlab"
+  when: cidre_issue_provider == "gitlab"
   block:
   - name: Gitlab API > Create issue
     ebuildy.cidre.platform:
-      platform: "{{ cidre_platform }}"
+      provider: "{{ cidre_issue_provider }}"
+      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       context:
-      - repo: "{{ cidre_repo }}"
+      - repo: "{{ cidre_issue_repo }}"
       action: create
       resource: issues
       data:
@@ -39,3 +41,31 @@
     register: g_issue
   - debug:
       msg: "Issue created! {{ g_issue.content.web_url }}"
+
+##
+# https://docs.atlassian.com/software/jira/docs/api/REST/8.14.0/#api/2/issue-createIssue
+##
+- name: create issue
+  when: cidre_issue_provider == "jira"
+  block:
+  - name: Jira API > Create issue
+    ebuildy.cidre.platform:
+      provider: "{{ cidre_issue_provider }}"
+      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      action: create
+      resource: issue
+      data:
+        fields:
+          project:
+            key: "{{ cidre_issue_repo }}"
+          summary: "{{ title }}"
+          description: "{{ body | default('') }}"
+          components:
+          - name: "{{ cidre_issue_component }}"
+          fixVersions:
+          - name: "{{ cidre_issue_component }}-{{ cidre_version }}"
+          issuetype:
+            name: Task
+    register: g_issue
+  - debug:
+      msg: "Issue {{ g_issue.content.key }} created >> {{ g_issue.content.self }}"

@@ -2,6 +2,12 @@
 
 ## Open issues
 
+{% if cidre_issue_provider == "jira" %}
+{% for issue in g_status.content.issues %}
+* #{{ issue.key }} {{ issue.fields.summary }} - {{ cidre_issue_provider_front }}/browse/{{ issue.key }}
+{% endfor %}
+{% else %}
 {% for issue in g_status.content %}
 * #{{ issue.number | default(issue.id) }} {{ issue.title }} - {{ issue.html_url | default(issue.web_url) }}
 {% endfor %}
+{% endif %}

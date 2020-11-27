@@ -18,27 +18,10 @@ description: Call Github or Gitlab HTTP API
 author:
   - "Thomas Decaux (@ebuildy)"
 
+extends_documentation_fragment:
+- ebuildy.cidre.platform_api
+
 options:
-  cidre_platform:
-    description:
-    - gitlab / github
-    type: str
-    choices:
-    - github
-    - gitlab
-    - bitbucket
-  cidre_platform_url:
-    description:
-    - Full URL to API, default to public URL
-    type: str
-  cidre_platform_access_token:
-    description:
-    - access_token to use, default to env platform_TOKEN / GITLAB_TOKEN
-    type: str
-  cidre_repo:
-    description:
-    - repo ID or path name or for github user/repo
-    type: str
   resource:
     description:
     - Query string
@@ -198,6 +181,28 @@ def github_pre_http(headers, access_token):
     if access_token is not None and len(access_token) > 0:
         headers['Authorization'] = "token " + access_token
 
+def jira_pre_http(headers, access_token):
+    headers["Content-Type"] = "application/json"
+    headers["Accept"] = "application/json"
+
+    if access_token is None or len(access_token) == 0:
+        if "JIRA_TOKEN" in os.environ:
+            access_token = os.environ["JIRA_TOKEN"]
+
+    if access_token is not None and len(access_token) > 0:
+        headers['Authorization'] = "Basic " + access_token
+
+def jira_build_url(endpoint, resource, context, query_string):
+    endpoint = get_endpoint(endpoint, "https://jira.atlassian.com/rest")
+
+    if resource == "session":
+        endpoint = endpoint + "/auth/latest"
+    else:
+        endpoint = endpoint + "/api/latest"
+
+    return platform_api_build_url(endpoint, resource, context, query_string)
+
+
 GITHUB = {
     "env" : {
         "url" : "GITHUB_URL",
@@ -218,12 +223,22 @@ GITLAB = {
     "http_build_url" : gitlab_api_build_url
 }
 
+JIRA = {
+    "env" : {
+        "url" : "JIRA_URL",
+        "token" : "JIRA_TOKEN"
+    },
+    "http_methods" : {"get": "get", "create": "post", "update": "put", "delete": "delete"},
+    "http_pre_hook" : jira_pre_http,
+    "http_build_url" : jira_build_url
+}
+
 def run_module():
 
     module_args = dict(
-        platform=dict(type='str', choices=['github', 'gitlab', 'bitbucket']),
-        endpoint=dict(type='str'),
-        access_token=dict(type='str'),
+        provider=dict(type='str', choices=['github', 'gitlab', 'bitbucket', 'jira']),
+        provider_endpoint=dict(type='str'),
+        provider_access_token=dict(type='str'),
         action=dict(type='str', choices=['get', 'update', 'create', 'delete'], default="get"),
         resource=dict(type='str'),
         query_string=dict(type='raw', default={}),
@@ -242,9 +257,9 @@ def run_module():
     if module.check_mode:
         module.exit_json(module.params)
 
-    arg_platform = params.get("platform")
-    arg_endpoint = params.get("endpoint")
-    arg_access_token =  params.get("access_token")
+    arg_platform = params.get("provider")
+    arg_endpoint = params.get("provider_endpoint")
+    arg_access_token =  params.get("provider_access_token")
     arg_resource = params.get("resource")
     arg_action = params.get("action")
     arg_context = params.get("context")
@@ -253,6 +268,8 @@ def run_module():
 
     if arg_platform == "gitlab":
         platform = GITLAB
+    elif arg_platform == "jira":
+        platform = JIRA
     else:
         platform = GITHUB
 
@@ -264,7 +281,7 @@ def run_module():
     http_query_body = None
     http_headers = {}
 
-    #module.warn(http_url)
+    module.warn(http_url)
 
     platform['http_pre_hook'](http_headers, arg_access_token)
 
@@ -295,6 +312,8 @@ def run_module():
         # may have been stored in the info as 'body'
         content = info.pop('body', '')
 
+    if arg_platform == "jira" and (http_response_status == 400):
+        http_response_status = 200
 
     if http_response_status <= 0 or (http_response_status >= 400 and http_response_status < 500):
         module.fail_json(msg="Platform error [%s] when %s %s : %s" % (info['status'], http_method, http_url, content))

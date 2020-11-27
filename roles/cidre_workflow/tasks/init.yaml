@@ -44,3 +44,9 @@
   shell: |
     git add {{ cidre_version_file }} {{ cidre_changelog_file }}
     git commit {{ cidre_version_file }} {{ cidre_changelog_file }} -m "Initialize VERSION / CHANGELOG"
+
+- name: Create milestone
+  include_tasks:
+    file: "milestone_create.yaml"
+  vars:
+    ms_version: "{{ cidre_version }}"

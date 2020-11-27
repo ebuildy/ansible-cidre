@@ -47,22 +47,30 @@ ansible-playbook ./cidre.yaml --tags cidre_init
 # Get info
 ansible-playbook ./cidre.yaml --tags cidre_info
 
-# Start a release
-ansible-playbook ./cidre.yaml -e "cidre_version_to=v0.1.0" --tags cidre_release_start
+# Open a milestone
+ansible-playbook ./cidre.yaml -e "cidre_version_to=v0.1.0" --tags cidre_ms_open
+
+# Or bump version
+ansible-playbook ./cidre.yaml --tags cidre_bump_minor
 
 # Create new issue
-ansible-playbook ./cidre.yaml --tags "cidre_issue_create" -e 'issue_title="CI: integrate cidre"' -e issue_description="cidre"
+ansible-playbook ./cidre.yaml --tags "cidre_issue_create" -e 'title="CI: integrate cidre"' -e body="cidre"
 
 # Commit some changes
 git commit -am "stuff"
 
-# Update change log (milestone description)
+# Update change log (milestone description) + CHANGELOG file
 ansible-playbook ./cidre.yaml --tags "cidre_changelog"
 
-# Finish release
-ansible-playbook ./cidre.yaml --tags "cidre_release_end"
+# Close milestone
+ansible-playbook ./cidre.yaml --tags "cidre_ms_close"
 
 ```
+
+## Glossary
+
+* milestone: gitlab / github
+* issues: gitlab / github / jira
 
 ## versioning
 
