@@ -26,7 +26,7 @@
       msg: "milestone created {{ g_milestone.content.web_url }}"
 
 ##
-# "issue" provider
+# "issue" provider mirror
 ##
 - when: cidre_issue_provider != cidre_provider and cidre_issue_provider != "jira"
   name: Get or create milestone on issue provider

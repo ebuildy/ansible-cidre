@@ -51,6 +51,7 @@
       content: "{{ cidre_version_to }}"
       dest: "{{ cidre_version_file }}"
   - shell: |
+      git add {{ cidre_version_file }}
       git commit {{ cidre_version_file }} -m "Bump version to {{ cidre_version_to }}"
 
 - name: Get or create milestone
