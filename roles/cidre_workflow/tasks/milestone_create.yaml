@@ -36,7 +36,7 @@
       provider: "jira"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       action: create
-      resource: api/2/version
+      resource: version
       data:
         project: "{{ cidre_issue_repo }}"
         name: "{{ cidre_issue_component }}-{{ ms_version }}"
@@ -52,12 +52,13 @@
           project:
             key: "{{ cidre_issue_repo }}"
           summary: "Milestone {{ cidre_issue_component }} {{ cidre_version }}"
-          description: "{{ body | default('') }}"
+          description: "Issue to follow milestone {{ cidre_version }} - mirrored by {{ g_milestone.content.web_url | default(g_milestone.content.html_url) | default('') }}"
           components:
           - name: "{{ cidre_issue_component }}"
           fixVersions:
           - name: "{{ cidre_issue_component }}-{{ cidre_version }}"
           issuetype:
             name: Task
+    register: g_issue
   - debug:
-      msg: "milestone created {{ g_milestone.content.self }}"
+      msg: "milestone created {{ g_milestone.content.self }} - issue {{ cidre_issue_provider_front }}/browse/{{ g_issue.content.key }}"

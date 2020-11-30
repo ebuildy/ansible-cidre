@@ -68,4 +68,4 @@
             name: Task
     register: g_issue
   - debug:
-      msg: "Issue {{ g_issue.content.key }} created >> {{ g_issue.content.self }}"
+      msg: "Issue {{ g_issue.content.key }} created >> {{ cidre_issue_provider_front }}/browse/{{ g_issue.content.key }}"

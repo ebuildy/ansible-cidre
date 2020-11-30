@@ -75,8 +75,7 @@
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       action: update
       context:
-        api: latest
-        version: "{{ jira_issues.content.issues[0].fields.fixVersions[0].id }}"
+      - version: "{{ jira_issues.content.issues[0].fields.fixVersions[0].id }}"
       data:
         released: true
         releaseDate: "{{ ansible_date_time.date }}"

@@ -11,4 +11,3 @@ cidre_issue_provider: github
 cidre_issue_repo:
 cidre_issue_provider_endpoint:
 cidre_issue_provider_front: https://github.com
-cidre_provider: github

@@ -45,7 +45,7 @@
 # If new version > write VERSION
 ##
 - name: "Write into {{ cidre_version_file }}"
-  when: cidre_version_to != cidre_version
+  ignore_errors: yes
   block:
   - copy:
       content: "{{ cidre_version_to }}"
