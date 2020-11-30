@@ -27,6 +27,8 @@
   - cidre_bump_major
   - cidre_info
   - cidre_status
+  - cidre_release_create
+  - cidre_status_create
   block:
   - include_tasks:
       file: "get_user.yaml"
@@ -73,13 +75,19 @@
   - never
   block:
   - include_tasks:
-      file: release_start.yaml
+      file: milestone_open.yaml
 
 - name: Create issue
   tags: ["cidre_issue_create", "never"]
   block:
   - include_tasks:
       file: issue_create.yaml
+
+- name: Create release
+  tags: ["cidre_release_create", "never"]
+  block:
+  - include_tasks:
+      file: release_create.yaml
 
 - name: Write changelog
   tags: ["cidre_changelog", "never"]
@@ -91,4 +99,4 @@
   tags: ["cidre_ms_close", "never"]
   block:
   - include_tasks:
-      file: release_end.yaml
+      file: milestone_close.yaml

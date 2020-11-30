@@ -3,7 +3,7 @@
 - when: cidre_issue_provider == "jira"
   set_fact:
     search_query:
-      provider: "{{ cidre_issue_provider }}"
+      provider: "jira"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       resource: search
       query_string:

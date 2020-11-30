@@ -1,0 +1,38 @@
+---
+
+- name: Create Github release
+  when: cidre_provider == "github"
+  block:
+  - ebuildy.cidre.platform:
+      provider: github
+      provider_endpoint: "{{ cidre_provider_endpoint }}"
+      context:
+      - repo: "{{ cidre_repo }}"
+      action: create
+      resource: releases
+      data:
+        name: "{{ cidre_version }}"
+        tag_name: "{{ cidre_version }}"
+        description: "{{ cidre_milestone.description }}"
+    register: g_release
+  - debug:
+      msg: "Release created: {{ g_release.content.html_url }}"
+
+- name: Create Gitlab release
+  when: cidre_provider == "gitlab"
+  block:
+  - ebuildy.cidre.platform:
+      provider: gitlab
+      provider_endpoint: "{{ cidre_provider_endpoint }}"
+      context:
+      - repo: "{{ cidre_repo }}"
+      action: create
+      resource: releases
+      data:
+        name: "{{ cidre_version }}"
+        tag_name: "{{ cidre_version }}"
+        description: "{{ cidre_milestone.description }}"
+        milestone: "{{ cidre_milestone.id }}"
+    register: g_release
+  - debug:
+      msg: "Release created: {{ g_release.content._links.self }}"

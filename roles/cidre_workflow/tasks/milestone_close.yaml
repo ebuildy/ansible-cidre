@@ -1,13 +1,5 @@
 ---
 
-- name: Check | git commits
-  block:
-  - shell: "git status --porcelain"
-    register: git_status
-  - fail:
-      msg: "Please commit all changes: {{ git_status.stdout }}"
-    when: git_status.stdout != ""
-
 - set_fact:
     git_branch: "{{ cidre_git_branch_release_prefix }}/{{ cidre_version }}"
 
@@ -28,15 +20,11 @@
 - shell: "git rev-parse --verify --quiet {{ cidre_version }} || true"
   register: shell_git_tag
 
-- name: Merge branch into main
+- name: Merge branch into main & develop
   when: shell_git_branch.stdout != ""
   shell: |
     git switch {{ cidre_git_branch_main }}
     git merge {{ git_branch }}
-
-- name: Merge main branch into develop
-  when: shell_git_branch.stdout != ""
-  shell: |
     git switch {{ cidre_git_branch_dev }}
     git merge {{ git_branch }}
 
@@ -72,42 +60,26 @@
       - milestone: "{{ cidre_milestone.id }}"
       data: "{{ milestone_data }}"
 
-- name: Create Github release
-  when: cidre_provider == "github"
+- name: Close jira version
+  when: cidre_issue_provider == "jira"
   block:
   - ebuildy.cidre.platform:
-      provider: github
-      provider_endpoint: "{{ cidre_provider_endpoint }}"
-      context:
-      - repo: "{{ cidre_repo }}"
-      action: create
-      resource: releases
-      data:
-        name: "{{ cidre_version }}"
-        tag_name: "{{ cidre_version }}"
-        description: "{{ cidre_milestone.description }}"
-    register: g_release
-  - debug:
-      msg: "Release created: {{ g_release.content.html_url }}"
-
-- name: Create Gitlab release
-  when: cidre_provider == "gitlab"
-  block:
+      provider: "jira"
+      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      resource: search
+      query_string:
+        jql: "project={{cidre_issue_repo}} AND fixVersion={{ cidre_issue_component }}-{{ cidre_milestone.title }}"
+    register: jira_issues
   - ebuildy.cidre.platform:
-      provider: gitlab
-      provider_endpoint: "{{ cidre_provider_endpoint }}"
+      provider: "jira"
+      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      action: update
       context:
-      - repo: "{{ cidre_repo }}"
-      action: create
-      resource: releases
+        api: latest
+        version: "{{ jira_issues.content.issues[0].fields.fixVersions[0].id }}"
       data:
-        name: "{{ cidre_version }}"
-        tag_name: "{{ cidre_version }}"
-        description: "{{ cidre_milestone.description }}"
-        milestone: "{{ cidre_milestone.id }}"
-    register: g_release
-  - debug:
-      msg: "Release created: {{ g_release.content._links.self }}"
+        released: true
+        releaseDate: "{{ ansible_date_time.date }}"
 
 - name: Delete local and remote release branch
   shell: |
