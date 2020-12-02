@@ -310,7 +310,7 @@ def run_module():
 
     try:
         content = resp.read()
-    except AttributeError:
+    except AttributeError as e:
         # there was no content, but the error read()
         # may have been stored in the info as 'body'
         content = info.pop('body', '')
@@ -321,10 +321,14 @@ def run_module():
     if http_response_status <= 0 or (http_response_status >= 400 and http_response_status < 500):
         module.fail_json(msg="Platform error [%s] when %s %s : %s" % (info['status'], http_method, http_url, content))
 
-    try:
-        http_content_data = json.loads(content)
-    except ValueError as e:
-        module.fail_json(msg="[%s] JSON decode error: %s" % (http_response_status, content))
+    # If 204 response
+    if len(content) > 0:
+        try:
+            http_content_data = json.loads(content)
+        except ValueError as e:
+            module.fail_json(msg="[%s] JSON decode error: %s" % (http_response_status, content))
+    else:
+        http_content_data = {}
 
     uresp = {
         "url" : http_url,
