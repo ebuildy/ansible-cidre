@@ -6,7 +6,7 @@
     provider_endpoint: "{{ cidre_provider_endpoint }}"
     resource: milestones
     context:
-    - repo: "{{ cidre_repo }}"
+    - repos: "{{ cidre_repo }}"
     query_string:
       per_page: 5
       sort: due_on
@@ -23,7 +23,7 @@
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       resource: issues
       context:
-      - repo: "{{ cidre_repo }}"
+      - repos: "{{ cidre_repo }}"
       query_string:
         milestone: "{{ item.number | default(item.title) }}"
         state: all

@@ -9,7 +9,7 @@
     provider_endpoint: "{{ cidre_provider_endpoint }}"
     resource: milestones
     context:
-    - repo: "{{ cidre_repo }}"
+    - repos: "{{ cidre_repo }}"
     query_string:
       per_page: 10
       sort: due_on

@@ -16,7 +16,7 @@
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       resource: issues
       context:
-      - repo: "{{ cidre_repo }}"
+      - repos: "{{ cidre_repo }}"
       query_string:
         milestone: "{{ (cidre_provider == 'github') | ternary(cidre_milestone.id, cidre_milestone.title) }}"
         state: all
@@ -47,8 +47,8 @@
     provider_endpoint: "{{ cidre_provider_endpoint }}"
     action: update
     context:
-    - repo: "{{ cidre_repo }}"
-    - milestone: "{{ cidre_milestone.id }}"
+    - repos: "{{ cidre_repo }}"
+    - milestones: "{{ cidre_milestone.id }}"
     data:
       description: "{{ milestone_content }}"
 

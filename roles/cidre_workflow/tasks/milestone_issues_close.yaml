@@ -7,7 +7,7 @@
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       resource: issues
       context:
-      - repo: "{{ cidre_repo }}"
+      - repos: "{{ cidre_repo }}"
       query_string:
         milestone: "{{ cidre_milestone.number | default(cidre_milestone.title) }}"
         state: open
@@ -21,8 +21,8 @@
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       action: update
       context:
-      - repo: "{{ cidre_repo }}"
-      - issue: "{{ g_issue.number | default(g_issue.id) }}"
+      - repos: "{{ cidre_repo }}"
+      - issues: "{{ g_issue.number | default(g_issue.id) }}"
       data:
         state: closed
 

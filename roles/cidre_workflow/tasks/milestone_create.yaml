@@ -12,7 +12,7 @@
       provider_endpoint: "{{ cidre_provider_endpoint }}"
       action: create
       context:
-      - repo: "{{ cidre_repo }}"
+      - repos: "{{ cidre_repo }}"
       resource: milestones
       data:
         title: "{{ ms_version }}"

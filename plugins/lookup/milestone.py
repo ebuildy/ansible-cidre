@@ -75,7 +75,7 @@ class LookupModule(LookupBase):
         ret = []
 
         for term in terms:
-            full_url = platform['http_build_url'](arg_endpoint, "milestones", [{"repo" : arg_repo}], {"state" : "all", "per_page" : 100})
+            full_url = platform['http_build_url'](arg_endpoint, "milestones", [{"repos" : arg_repo}], {"state" : "all", "per_page" : 100})
 
             display.v(full_url)
 

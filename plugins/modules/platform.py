@@ -106,18 +106,13 @@ def urls_part_to_url(parts):
 def platform_api_resource_to_context_item(resource):
     return resource[:-1]
 
-def platform_api_build_url(endpoint, resource, context, query_string, fix_name_s = True):
+def platform_api_build_url(endpoint, resource, context, query_string):
 
     urlParts = []
 
     for c_item in context:
         for c_name, c_value in c_item.items():
-            if fix_name_s:
-                r = c_name + "s"
-            else:
-                r = c_name
-
-            urlParts.append(r)
+            urlParts.append(c_name)
             urlParts.append(str(c_value))
 
     if resource is not None and len(resource) > 0:
@@ -203,7 +198,7 @@ def jira_build_url(endpoint, resource, context, query_string):
     else:
         endpoint = endpoint + "/api/latest"
 
-    return platform_api_build_url(endpoint, resource, context, query_string, fix_name_s = False)
+    return platform_api_build_url(endpoint, resource, context, query_string)
 
 
 GITHUB = {

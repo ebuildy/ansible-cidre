@@ -56,8 +56,8 @@
       provider_endpoint: "{{ cidre_provider_endpoint }}"
       action: update
       context:
-      - repo: "{{ cidre_repo }}"
-      - milestone: "{{ cidre_milestone.id }}"
+      - repos: "{{ cidre_repo }}"
+      - milestones: "{{ cidre_milestone.id }}"
       data: "{{ milestone_data }}"
 
 - name: Close jira version

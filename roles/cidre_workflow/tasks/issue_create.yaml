@@ -12,7 +12,7 @@
       provider: "{{ cidre_issue_provider }}"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       context:
-      - repo: "{{ cidre_issue_repo }}"
+      - repos: "{{ cidre_issue_repo }}"
       action: create
       resource: issues
       data:
@@ -31,7 +31,7 @@
       provider: "{{ cidre_issue_provider }}"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       context:
-      - repo: "{{ cidre_issue_repo }}"
+      - repos: "{{ cidre_issue_repo }}"
       action: create
       resource: issues
       data:

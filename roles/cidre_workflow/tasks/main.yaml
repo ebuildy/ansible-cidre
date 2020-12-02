@@ -58,15 +58,11 @@
 
 - name: Initialize
   tags: ["never", "cidre_init"]
-  block:
-  - include_tasks:
-      file: init.yaml
+  import_tasks: init.yaml
 
 - name: Status
   tags: ["never", "cidre_status", "cidre_info"]
-  block:
-  - include_tasks:
-      file: status.yaml
+  import_tasks: status.yaml
 
 - name: Start release
   tags:
@@ -75,33 +71,23 @@
   - cidre_bump_major
   - cidre_ms_open
   - never
-  block:
-  - include_tasks:
-      file: milestone_open.yaml
+  import_tasks: milestone_open.yaml
 
 - name: Create issue
   tags: ["cidre_issue_create", "never"]
-  block:
-  - include_tasks:
-      file: issue_create.yaml
+  import_tasks: issue_create.yaml
 
 - name: Create release
   tags: ["cidre_release_create", "never"]
-  block:
-  - include_tasks:
-      file: release_create.yaml
+  import_tasks: release_create.yaml
 
 - name: Write changelog
   tags: ["cidre_changelog", "never"]
-  block:
-  - include_tasks:
-      file: changelog_write.yaml
+  import_tasks: changelog_write.yaml
 
 - name: Close milestone
   tags: ["cidre_ms_close", "never"]
-  block:
-  - include_tasks:
-      file: milestone_close.yaml
+  import_tasks: milestone_close.yaml
 
 - name: Close milestone issues
   tags: ["cidre_ms_issues_close", "never"]

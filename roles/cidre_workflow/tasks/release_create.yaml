@@ -7,7 +7,7 @@
       provider: github
       provider_endpoint: "{{ cidre_provider_endpoint }}"
       context:
-      - repo: "{{ cidre_repo }}"
+      - repos: "{{ cidre_repo }}"
       action: create
       resource: releases
       data:
@@ -25,7 +25,7 @@
       provider: gitlab
       provider_endpoint: "{{ cidre_provider_endpoint }}"
       context:
-      - repo: "{{ cidre_repo }}"
+      - repos: "{{ cidre_repo }}"
       action: create
       resource: releases
       data:
