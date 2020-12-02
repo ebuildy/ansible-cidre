@@ -11,3 +11,5 @@ cidre_issue_provider: github
 cidre_issue_repo:
 cidre_issue_provider_endpoint:
 cidre_issue_provider_front: https://github.com
+cidre_issue_close_state: 41
+cidre_issue_open_filter: '("In Progress", Testing, Specifying, Prelive, "To Test", "To Do", "To Review", "To Release", "To Merge")'

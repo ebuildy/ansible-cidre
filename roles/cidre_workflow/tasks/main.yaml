@@ -21,6 +21,7 @@
   - never
   - cidre_ms_open
   - cidre_ms_close
+  - cidre_ms_issues_close
   - cidre_changelog
   - cidre_bump_patch
   - cidre_bump_minor
@@ -95,8 +96,12 @@
   - include_tasks:
       file: changelog_write.yaml
 
-- name: Finish release
+- name: Close milestone
   tags: ["cidre_ms_close", "never"]
   block:
   - include_tasks:
       file: milestone_close.yaml
+
+- name: Close milestone issues
+  tags: ["cidre_ms_issues_close", "never"]
+  import_tasks: milestone_issues_close.yaml

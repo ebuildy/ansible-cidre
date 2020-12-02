@@ -1,0 +1,32 @@
+---
+
+- when: cidre_issue_provider == "jira"
+  block:
+  - ebuildy.cidre.platform:
+      provider: "jira"
+      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      resource: search
+      query_string:
+        jql: "project={{cidre_issue_repo}} AND fixVersion={{ cidre_issue_component }}-{{ cidre_version }} AND status in {{ cidre_issue_open_filter }}"
+    register: g_status
+  - loop: "{{ g_status.content.issues }}"
+    loop_control:
+      label: ""
+      loop_var: g_issue
+    ebuildy.cidre.platform:
+      provider: "jira"
+      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      action: create
+      resource: transitions
+      context:
+      - issue: "{{ g_issue.id }}"
+      data:
+        update:
+          comment:
+          - add:
+              body: "Closed by cidre.io."
+        transition:
+          id: "{{ cidre_issue_close_state }}"
+    register: g_issue_update
+  - debug:
+      var: g_issue_update
