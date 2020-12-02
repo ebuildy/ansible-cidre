@@ -46,7 +46,7 @@ from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.module_utils.urls import open_url, ConnectionError, SSLValidationError
 from ansible.utils.display import Display
 
-from ..modules.platform import GITLAB, GITHUB, JIRA
+from ..modules.api import GITLAB, GITHUB, JIRA
 
 display = Display()
 

@@ -31,11 +31,11 @@ Example Playbook
 
   vars:
     cidre_repo: ebuildy/ansible-cidre
-    cidre_platform: github
+    cidre_provider: github
     cidre_version: "{{ lookup('file', './VERSION') | default('v0.1.0') }}"
 
   roles:
-  - cidre_workflow
+  - ebuildy.cidre.cidre_workflow
 ```
 
 License
