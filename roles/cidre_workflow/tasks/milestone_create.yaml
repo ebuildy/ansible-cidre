@@ -7,7 +7,7 @@
   ignore_errors: yes
   block:
   - name: create milestone
-    ebuildy.cidre.platform:
+    ebuildy.cidre.api:
       provider: "{{ cidre_provider }}"
       provider_endpoint: "{{ cidre_provider_endpoint }}"
       action: create
@@ -32,7 +32,7 @@
   name: Get or create milestone on issue provider
   block:
   - name: create milestone
-    ebuildy.cidre.platform:
+    ebuildy.cidre.api:
       provider: "jira"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       action: create
@@ -42,7 +42,7 @@
         name: "{{ cidre_issue_component }}-{{ ms_version }}"
         description: "See {{ g_milestone.content.web_url }}"
     register: g_milestone
-  - ebuildy.cidre.platform:
+  - ebuildy.cidre.api:
       provider: "jira"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       action: create

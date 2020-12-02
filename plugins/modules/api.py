@@ -9,11 +9,11 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 
-module: platform
+module: api
 
-short_description: Call Github or Gitlab HTTP API
+short_description: Helper to call JSON HTTP API
 
-description: Call Github or Gitlab HTTP API
+description: Helper to call JSON HTTP API, such as Github or Gitlab HTTP API
 
 author:
   - "Thomas Decaux (@ebuildy)"
@@ -58,7 +58,7 @@ requirements:
 
 EXAMPLES = r'''
 - name: Search a milestone
-  ebuildy.cidre.platform:
+  ebuildy.cidre.api:
     platform: gitlab
     resource: milestones
     action: get
@@ -68,7 +68,7 @@ EXAMPLES = r'''
         title: "{{ project.version_wanted }}"
 
 - name: Create an issue
-  ebuildy.cidre.platform:
+  ebuildy.cidre.api:
     platform: gitlab
     resource: issues
     action: create

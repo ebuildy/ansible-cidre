@@ -1,7 +1,7 @@
 ---
 
 - name: Get latest milestones
-  ebuildy.cidre.platform:
+  ebuildy.cidre.api:
     provider: "{{ cidre_provider }}"
     provider_endpoint: "{{ cidre_provider_endpoint }}"
     resource: milestones
@@ -18,7 +18,7 @@
   when: cidre_issue_provider != "jira"
   block:
   - name: Get milestones associated issues
-    ebuildy.cidre.platform:
+    ebuildy.cidre.api:
       provider: "{{ cidre_issue_provider }}"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       resource: issues
@@ -40,7 +40,7 @@
   when: cidre_issue_provider == "jira"
   block:
   - name: Get jira associated issues
-    ebuildy.cidre.platform:
+    ebuildy.cidre.api:
       provider: "{{ cidre_issue_provider }}"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       resource: search

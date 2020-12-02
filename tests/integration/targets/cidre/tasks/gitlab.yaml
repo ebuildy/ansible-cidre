@@ -8,7 +8,7 @@
 
 - name: Get project
   block:
-  - ebuildy.cidre.platform:
+  - ebuildy.cidre.api:
       platform: "{{ cidre_platform }}"
       context:
         repo: "{{ cidre_repo }}"

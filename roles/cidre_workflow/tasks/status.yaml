@@ -4,7 +4,7 @@
     msg: "Current version = {{ cidre_version }}, milestone = {{ cidre_milestone.title }} - {{ cidre_milestone.web_url }}"
 
 - name: ""
-  ebuildy.cidre.platform:
+  ebuildy.cidre.api:
     provider: "{{ cidre_provider }}"
     provider_endpoint: "{{ cidre_provider_endpoint }}"
     resource: milestones

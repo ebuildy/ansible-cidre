@@ -3,7 +3,7 @@
 - name: Create Github release
   when: cidre_provider == "github"
   block:
-  - ebuildy.cidre.platform:
+  - ebuildy.cidre.api:
       provider: github
       provider_endpoint: "{{ cidre_provider_endpoint }}"
       context:
@@ -21,7 +21,7 @@
 - name: Create Gitlab release
   when: cidre_provider == "gitlab"
   block:
-  - ebuildy.cidre.platform:
+  - ebuildy.cidre.api:
       provider: gitlab
       provider_endpoint: "{{ cidre_provider_endpoint }}"
       context:

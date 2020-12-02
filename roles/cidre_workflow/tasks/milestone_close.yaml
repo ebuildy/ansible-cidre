@@ -51,7 +51,7 @@
     set_fact:
       milestone_data:
         state_event: close
-  - ebuildy.cidre.platform:
+  - ebuildy.cidre.api:
       provider: "{{ cidre_provider }}"
       provider_endpoint: "{{ cidre_provider_endpoint }}"
       action: update
@@ -63,14 +63,14 @@
 - name: Close jira version
   when: cidre_issue_provider == "jira"
   block:
-  - ebuildy.cidre.platform:
+  - ebuildy.cidre.api:
       provider: "jira"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       resource: search
       query_string:
         jql: "project={{cidre_issue_repo}} AND fixVersion={{ cidre_issue_component }}-{{ cidre_milestone.title }}"
     register: jira_issues
-  - ebuildy.cidre.platform:
+  - ebuildy.cidre.api:
       provider: "jira"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       action: update

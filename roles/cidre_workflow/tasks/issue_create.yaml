@@ -8,7 +8,7 @@
   when: cidre_issue_provider == "github"
   block:
   - name: Github API > Create issue
-    ebuildy.cidre.platform:
+    ebuildy.cidre.api:
       provider: "{{ cidre_issue_provider }}"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       context:
@@ -27,7 +27,7 @@
   when: cidre_issue_provider == "gitlab"
   block:
   - name: Gitlab API > Create issue
-    ebuildy.cidre.platform:
+    ebuildy.cidre.api:
       provider: "{{ cidre_issue_provider }}"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       context:
@@ -49,7 +49,7 @@
   when: cidre_issue_provider == "jira"
   block:
   - name: Jira API > Create issue
-    ebuildy.cidre.platform:
+    ebuildy.cidre.api:
       provider: "{{ cidre_issue_provider }}"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       action: create

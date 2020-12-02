@@ -2,7 +2,7 @@
 
 - when: cidre_issue_provider == "github"
   block:
-  - ebuildy.cidre.platform:
+  - ebuildy.cidre.api:
       provider: "{{ cidre_issue_provider }}"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       resource: issues
@@ -16,7 +16,7 @@
     loop_control:
       label: "{{ g_issue.number | default(g_issue.id) }}"
       loop_var: g_issue
-    ebuildy.cidre.platform:
+    ebuildy.cidre.api:
       provider: "{{ cidre_issue_provider }}"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       action: update
@@ -29,7 +29,7 @@
 
 - when: cidre_issue_provider == "jira"
   block:
-  - ebuildy.cidre.platform:
+  - ebuildy.cidre.api:
       provider: "jira"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       resource: search
@@ -40,7 +40,7 @@
     loop_control:
       label: "{{ g_issue.key }}"
       loop_var: g_issue
-    ebuildy.cidre.platform:
+    ebuildy.cidre.api:
       provider: "jira"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       action: create

@@ -1,7 +1,7 @@
 ---
 
 - when: cidre_issue_provider == "github" or cidre_issue_provider == "gitlab"
-  ebuildy.cidre.platform:
+  ebuildy.cidre.api:
     provider: "{{ cidre_issue_provider }}"
     provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
     resource: issues
@@ -13,7 +13,7 @@
   register: g_status
 
 - when: cidre_issue_provider == "jira"
-  ebuildy.cidre.platform:
+  ebuildy.cidre.api:
     provider: "{{ cidre_issue_provider }}"
     provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
     resource: search
