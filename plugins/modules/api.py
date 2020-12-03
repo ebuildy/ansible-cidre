@@ -151,9 +151,9 @@ def gitlab_api_build_url(endpoint, resource, context, query_string):
     endpoint = get_endpoint(endpoint, "https://gitlab.com/api/v4")
 
     for item in context:
-        if "repo" in item:
-            item["project"] = quote(item["repo"], safe='')
-            del item["repo"]
+        if "repos" in item:
+            item["projects"] = quote(item["repos"], safe='')
+            del item["repos"]
 
     if "state" in query_string:
         if query_string['state'] == 'open':
