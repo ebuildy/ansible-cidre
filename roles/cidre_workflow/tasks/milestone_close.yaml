@@ -70,7 +70,8 @@
       query_string:
         jql: "project={{cidre_issue_repo}} AND fixVersion={{ cidre_issue_component }}-{{ cidre_milestone.title }}"
     register: jira_issues
-  - ebuildy.cidre.api:
+  - when: jira_issues.content.issues|length > 0
+    ebuildy.cidre.api:
       provider: "jira"
       provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
       action: update

@@ -310,8 +310,8 @@ def run_module():
         # may have been stored in the info as 'body'
         content = info.pop('body', '')
 
-    if arg_platform == "jira" and (http_response_status == 400):
-        http_response_status = 200
+    #if arg_platform == "jira" and (http_response_status == 400):
+    #    http_response_status = 200
 
     if http_response_status <= 0 or (http_response_status >= 400 and http_response_status < 500):
         module.fail_json(msg="Platform error [%s] when %s %s : %s" % (info['status'], http_method, http_url, content))
