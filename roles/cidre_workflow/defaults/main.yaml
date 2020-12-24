@@ -10,6 +10,8 @@ cidre_data_file: './cidre_data.yaml'
 
 cidre_data: "{{ lookup('file', cidre_data_file) | from_yaml }}"
 
+cidre_version: "{{ cidre_data.version }}"
+
 cidre_issue_provider: github
 cidre_issue_repo:
 cidre_issue_provider_endpoint:

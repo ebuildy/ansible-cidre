@@ -15,8 +15,7 @@
     cidre_issue_provider: github
     cidre_issue_repo: ebuildy/ansible-cidre
 
-    cidre_version: "{{ lookup('file', './VERSION') | default('v0.1.0') }}"
     cidre_git_branch_main: master
 
   roles:
-  - cidre_workflow
+  - ebuildy.cidre.cidre_workflow
