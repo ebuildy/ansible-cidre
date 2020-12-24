@@ -50,9 +50,12 @@
   - copy:
       content: "{{ cidre_version_to }}"
       dest: "{{ cidre_version_file }}"
+  - copy:
+      dest: "{{ cidre_data_file }}"
+      content: "{{ cidre_data | combine({'version' : cidre_version_to}) | to_yaml }}"
   - shell: |
-      git add {{ cidre_version_file }}
-      git commit {{ cidre_version_file }} -m "Bump version to {{ cidre_version_to }}"
+      git add {{ cidre_version_file }} {{ cidre_data_file }}
+      git commit {{ cidre_version_file }} {{ cidre_data_file }} -m "Bump version to {{ cidre_version_to }}"
 
 - name: Get or create milestone
   include_tasks:

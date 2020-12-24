@@ -6,6 +6,9 @@ cidre_git_branch_dev: develop
 cidre_git_branch_release_prefix: release
 cidre_version_file: './VERSION'
 cidre_changelog_file: './CHANGELOG'
+cidre_data_file: './cidre_data.yaml'
+
+cidre_data: "{{ lookup('file', cidre_data_file) | from_yaml }}"
 
 cidre_issue_provider: github
 cidre_issue_repo:

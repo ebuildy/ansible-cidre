@@ -17,7 +17,7 @@
   - cidre_bump_major
   - cidre_ms_open
   - never
-  import_tasks: milestone_open.yaml
+  import_tasks: version_bump.yaml
 
 - name: Create issue
   tags: ["cidre_issue_create", "never"]

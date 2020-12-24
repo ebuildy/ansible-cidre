@@ -60,28 +60,19 @@
       - milestones: "{{ cidre_milestone.id }}"
       data: "{{ milestone_data }}"
 
-- name: Close jira version
+- name: Release Jira version
   when: cidre_issue_provider == "jira"
-  block:
-  - ebuildy.cidre.api:
-      provider: "jira"
-      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
-      resource: search
-      query_string:
-        jql: "project={{cidre_issue_repo}} AND fixVersion={{ cidre_issue_component }}-{{ cidre_milestone.title }}"
-    register: jira_issues
-  - when: jira_issues.content.issues|length > 0
-    ebuildy.cidre.api:
-      provider: "jira"
-      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
-      action: update
-      context:
-      - version: "{{ jira_issues.content.issues[0].fields.fixVersions[0].id }}"
-      data:
-        released: true
-        releaseDate: "{{ ansible_date_time.date }}"
+  ebuildy.cidre.api:
+    provider: "jira"
+    provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+    action: update
+    context:
+    - version: "{{ cidre_data.milestone_jira.id }}"
+    data:
+      released: true
+      releaseDate: "{{ ansible_date_time.date }}"
 
-- name: Delete local and remote release branch
-  shell: |
-    git branch -D {{ git_branch }}
-    git push -d origin {{ git_branch }} || true
+#- name: Delete local and remote release branch
+#  shell: |
+#    git branch -D {{ git_branch }}
+#    git push -d origin {{ git_branch }} || true
