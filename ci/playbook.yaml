@@ -17,5 +17,8 @@
 
     cidre_git_branch_main: master
 
+    cidre_version_file: '../VERSION'
+    cidre_changelog_file: '../CHANGELOG'
+
   roles:
   - ebuildy.cidre.cidre_workflow
