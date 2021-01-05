@@ -1,0 +1,46 @@
+---
+
+- when: false
+  set_fact: &provider
+    provider: "{{ cidre_blog_provider }}"
+    provider_endpoint: "{{ cidre_blog_api_endpoint }}"
+    provider_access_token: "{{ cidre_blog_api_token }}"
+
+- name: Search existing page
+  ebuildy.cidre.api:
+    <<: *provider
+    resource: content
+    query_string:
+      space: "{{ cidre_blog_repo }}"
+      title: MileStone {{ cidre_version }}
+  register: confluence_page_response
+
+- when: confluence_page_response.content.size > 0
+  name: "Remove existing page {{ confluence_page_response.content.results[0].id }}"
+  ebuildy.cidre.api:
+    <<: *provider
+    action: delete
+    context:
+    - content: "{{ confluence_page_response.content.results[0].id }}"
+
+- name: Create page
+  ebuildy.cidre.api:
+    <<: *provider
+    action: create
+    resource: content
+    data:
+      type: page
+      title: MileStone {{ cidre_version }}
+      space:
+        key: "{{ cidre_blog_repo }}"
+      ancestors:
+      - id: "{{ cidre_blog_ancestor }}"
+      body:
+        storage:
+          value: "{{ lookup('template', 'confluence_milestone_body.html.j2') }}"
+          representation: storage
+  register: confluence_page_response
+
+- debug:
+    #var: confluence_page_response
+    msg: "Page at {{ confluence_page_response.content._links.webui }}"

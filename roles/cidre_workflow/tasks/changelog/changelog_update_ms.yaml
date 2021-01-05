@@ -29,7 +29,12 @@
   shell: |
     if [ $(git tag | wc -l) -gt 0 ]
     then
-      git log $(git describe --tags --abbrev=0)..HEAD --pretty='format:[%ci] @%aN (%h) %s'
+      if [ $(git tag -l "{{ cidre_version }}") ]; then
+        # current version already deployed
+        git log {{ cidre_version }}^..{{ cidre_version }} --pretty='format:[%ci] @%aN (%h) %s'
+      else
+        git log {{ cidre_version }}..HEAD --pretty='format:[%ci] @%aN (%h) %s'
+      fi
     else
       git log --pretty='format:[%ci] @%aN (%h) %s'
     fi
@@ -51,6 +56,11 @@
     - milestones: "{{ cidre_milestone.id }}"
     data:
       description: "{{ milestone_content }}"
+
+- when: cidre_blog_provider == "confluence"
+  name: Confluence
+  include_tasks:
+    file: "confluence_write_page.yaml"
 
 - debug:
     msg: "Milestone updated: {{ cidre_milestone.web_url }}"

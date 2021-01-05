@@ -9,6 +9,7 @@
   - cidre_bump_patch
   - cidre_bump_minor
   - cidre_bump_major
+  - bootstrap_check
   block:
   - shell: "git status --porcelain"
     register: git_status
@@ -30,6 +31,7 @@
   - cidre_status
   - cidre_release_create
   - cidre_status_create
+  - bootstrap_check
   block:
   - include_tasks:
       file: "get_user.yaml"

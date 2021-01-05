@@ -19,6 +19,7 @@ options:
     - gitlab
     - bitbucket
     - jira
+    - confluence
   repo:
     description: repo name or numerical ID
     type: string

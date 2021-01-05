@@ -231,10 +231,16 @@ JIRA = {
     "http_build_url" : jira_build_url
 }
 
+CONFLUENCE = {
+    "http_methods" : {"get": "get", "create": "post", "update": "put", "delete": "delete"},
+    "http_pre_hook" : jira_pre_http,
+    "http_build_url" : platform_api_build_url
+}
+
 def run_module():
 
     module_args = dict(
-        provider=dict(type='str', choices=['github', 'gitlab', 'bitbucket', 'jira']),
+        provider=dict(type='str', choices=['github', 'gitlab', 'bitbucket', 'jira', 'confluence']),
         provider_endpoint=dict(type='str'),
         provider_access_token=dict(type='str'),
         action=dict(type='str', choices=['get', 'update', 'create', 'delete'], default="get"),
@@ -268,6 +274,8 @@ def run_module():
         platform = GITLAB
     elif arg_platform == "jira":
         platform = JIRA
+    elif arg_platform == "confluence":
+        platform = CONFLUENCE
     else:
         platform = GITHUB
 
@@ -279,7 +287,10 @@ def run_module():
     http_query_body = None
     http_headers = {}
 
-    module.warn(http_url)
+    #module.warn(http_url)
+
+    #if arg_access_token is not None:
+    #    module.warn(arg_access_token)
 
     platform['http_pre_hook'](http_headers, arg_access_token)
 
@@ -289,6 +300,9 @@ def run_module():
         http_query_body = json.dumps(arg_data)
 
     module.params['validate_certs'] = False
+
+    #if http_query_body is not None:
+    #    module.warn(http_query_body)
 
     resp, info = fetch_url(
         module,

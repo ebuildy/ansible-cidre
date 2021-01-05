@@ -29,7 +29,7 @@
 
 - name: Write changelog
   tags: ["cidre_changelog", "never"]
-  import_tasks: changelog_write.yaml
+  import_tasks: changelog/changelog_write.yaml
 
 - name: Close milestone
   tags: ["cidre_ms_close", "never"]

@@ -16,5 +16,15 @@ cidre_issue_provider: github
 cidre_issue_repo:
 cidre_issue_provider_endpoint:
 cidre_issue_provider_front: https://github.com
+cidre_issue_api_token: "{{ lookup('env', (cidre_issue_provider | upper) ~ '_TOKEN' ) }}"
 cidre_issue_close_state: 41
 cidre_issue_open_filter: '("In Progress", Testing, Specifying, Prelive, "To Test", "To Do", "To Review", "To Release", "To Merge")'
+
+cidre_blog_provider: # Ex confluence
+cidre_blog_repo:  # Ex confluence space
+cidre_blog_ancestor: # Ex confluence page ID
+cidre_blog_api_endpoint: # Ex full confluence API URL
+cidre_blog_api_token: "{{ lookup('env', (cidre_blog_provider | upper) ~ '_TOKEN' ) }}"
+
+cidre_confluence_jira_server:
+cidre_confluence_jira_server_id: 
