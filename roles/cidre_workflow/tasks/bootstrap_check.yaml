@@ -44,22 +44,3 @@
     vars:
       _cidre_provider: "{{ cidre_issue_provider}}"
       _cidre_provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
-
-- name: Get current milestone
-  tags:
-  - never
-  - cidre_init
-  - cidre_info
-  - cidre_status
-  - cidre_ms_close
-  - cidre_changelog
-  - cidre_issue_create
-  - cidre_ms_issues_close
-  block:
-  - set_fact:
-      cidre_milestone: "{{ lookup('ebuildy.cidre.milestone', cidre_version, repo=cidre_repo, provider=cidre_provider, provider_endpoint=cidre_provider_endpoint) }}"
-  #- debug:
-  #    var: cidre_milestone
-  - when: cidre_milestone.id is not defined
-    fail:
-      msg: "Milestone {{ cidre_version }} not found! You must create it manualy."

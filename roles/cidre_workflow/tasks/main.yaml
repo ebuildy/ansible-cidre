@@ -2,6 +2,31 @@
 
 - import_tasks: bootstrap_check.yaml
 
+- name: Get current milestone
+  tags:
+  - never
+  - cidre_init
+  - cidre_info
+  - cidre_status
+  - cidre_ms_close
+  - cidre_changelog
+  - cidre_issue_create
+  - cidre_ms_issues_close
+  block:
+  - set_fact:
+      cidre_milestone: "{{ lookup('ebuildy.cidre.milestone', cidre_version, repo=cidre_repo, provider=cidre_provider, provider_endpoint=cidre_provider_endpoint) }}"
+  #- debug:
+  #    var: cidre_milestone
+  - when: cidre_milestone.id is not defined
+    fail:
+      msg: "Milestone {{ cidre_version }} not found! You must create it manualy."
+  - ebuildy.cidre.api:
+      provider: "{{ cidre_provider }}"
+      provider_endpoint: "{{ cidre_provider_endpoint }}"
+      context:
+      - repos: "{{ cidre_repo }}"
+    register: cidre_repo_data
+
 - name: Initialize
   tags: ["never", "cidre_init"]
   import_tasks: init.yaml
@@ -38,3 +63,7 @@
 - name: Close milestone issues
   tags: ["cidre_ms_issues_close", "never"]
   import_tasks: milestone_issues_close.yaml
+
+- name: Create blog entry for all tags
+  tags: ["cidre_changelog_all_tags", "never"]
+  import_tasks: changelog/changelog_blog_for_all_ms.yaml

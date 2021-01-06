@@ -59,6 +59,8 @@
 
 - when: cidre_blog_provider == "confluence"
   name: Confluence
+  vars:
+    ms_version: "{{ cidre_version }}"
   include_tasks:
     file: "confluence_write_page.yaml"
 

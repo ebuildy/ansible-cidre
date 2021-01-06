@@ -12,7 +12,7 @@
     resource: content
     query_string:
       space: "{{ cidre_blog_repo }}"
-      title: MileStone {{ cidre_version }}
+      title: MileStone {{ ms_version }}
   register: confluence_page_response
 
 - when: confluence_page_response.content.size > 0
@@ -23,14 +23,36 @@
     context:
     - content: "{{ confluence_page_response.content.results[0].id }}"
 
+- name: Git change log
+  vars:
+    git_format: "[%ci] @%aN %h <a href=\"{{ cidre_repo_data.web_url }}/-/commit/%H\">%s</a>"
+  shell: |
+    if [ $(git tag | wc -l) -gt 0 ]
+    then
+      if [ $(git tag -l "{{ ms_version }}") ]; then
+        # current version already deployed
+        git log {{ ms_version }}^..{{ ms_version }} --pretty='format:{{git_format}}'
+      else
+        git log {{ ms_version }}..HEAD --pretty='format:{{git_format}}'
+      fi
+    else
+      git log --pretty='format:{{git_format}}'
+    fi
+
+    exit 0
+  register: git_changes
+
 - name: Create page
+  vars:
+    cidre_milestone: "{{ lookup('ebuildy.cidre.milestone', ms_version, repo=cidre_repo, provider=cidre_provider, provider_endpoint=cidre_provider_endpoint) }}"
+    tag_web_url: https://git.qwant.ninja/product/analytic/infra/hot/-/tags/v1.2.0
   ebuildy.cidre.api:
     <<: *provider
     action: create
     resource: content
     data:
       type: page
-      title: MileStone {{ cidre_version }}
+      title: MileStone {{ ms_version }}
       space:
         key: "{{ cidre_blog_repo }}"
       ancestors:

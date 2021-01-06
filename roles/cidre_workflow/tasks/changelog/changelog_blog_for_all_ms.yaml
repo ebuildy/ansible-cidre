@@ -1,0 +1,24 @@
+---
+
+- name: Get latest milestones
+  ebuildy.cidre.api:
+    provider: "{{ cidre_provider }}"
+    provider_endpoint: "{{ cidre_provider_endpoint }}"
+    resource: milestones
+    context:
+    - repos: "{{ cidre_repo }}"
+    query_string:
+      per_page: 5
+      sort: due_on
+      direction: desc
+      state: all
+  register: g_milestones
+
+- name: "Write page for {{ item.title }}"
+  loop: "{{ g_milestones.content }}"
+  loop_control:
+    label: "#{{ item.id }} {{ item.title }}"
+  vars:
+    ms_version: "{{ item.title }}"
+  include_tasks:
+    file: confluence_write_page.yaml
