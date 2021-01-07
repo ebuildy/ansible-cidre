@@ -23,7 +23,7 @@ DOCUMENTATION = """
 
 EXAMPLES = """
 - name: Display test-cidre project ID
-  debug: msg={{ lookup('ebuildy.cidre.milestone', 'v1.0.0', platform='github' repo='ebuildy/test') }}
+  debug: msg={{ lookup('ebuildy.cidre.milestone', 'v1.0.0', api='github' repo='ebuildy/test') }}
 """
 
 RETURN = """
@@ -61,9 +61,9 @@ class LookupModule(LookupBase):
 
         self.set_options(direct=merge_two_dicts(variables, kwargs))
 
-        arg_platform = self.get_option('provider')
+        arg_platform = self.get_option('api')
         arg_repo = self.get_option('repo')
-        arg_endpoint = self.get_option('provider_endpoint')
+        arg_endpoint = self.get_option('api_url')
 
         if arg_platform == "gitlab":
             platform = GITLAB

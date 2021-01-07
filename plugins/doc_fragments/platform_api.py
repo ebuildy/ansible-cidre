@@ -10,7 +10,7 @@ class ModuleDocFragment(object):
 
     DOCUMENTATION = """
 options:
-  provider:
+  api:
     description:
     - gitlab / github / jira
     type: str
@@ -23,10 +23,10 @@ options:
   repo:
     description: repo name or numerical ID
     type: string
-  provider_endpoint:
+  api_url:
     description: API endpoint
     type: string
-  provider_access_token:
+  api_token:
     description: access_token
     type: string
     """

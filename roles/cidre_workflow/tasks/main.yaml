@@ -1,31 +1,34 @@
 ---
 
+- when: false
+  set_fact:
+    repo_provider: &repo_provider
+      api: "{{ cidre_provider }}"
+      api_url: "{{ cidre_provider_endpoint }}"
+      #api_token: "{{ cidre_blog_api_token }}"
+    issue_provider: &issue_provider
+      api: "{{ cidre_issue_provider }}"
+      api_url: "{{ cidre_issue_provider_endpoint }}"
+      #api_token: "{{ cidre_blog_api_token }}"
+
 - import_tasks: bootstrap_check.yaml
 
 - name: Get current milestone
   tags:
-  - never
-  - cidre_init
-  - cidre_info
-  - cidre_status
-  - cidre_ms_close
-  - cidre_changelog
-  - cidre_issue_create
-  - cidre_ms_issues_close
+  - always
+  - cidre_fetch_data
   block:
   - set_fact:
-      cidre_milestone: "{{ lookup('ebuildy.cidre.milestone', cidre_version, repo=cidre_repo, provider=cidre_provider, provider_endpoint=cidre_provider_endpoint) }}"
+      cidre_milestone: "{{ lookup('ebuildy.cidre.milestone', cidre_version, repo=cidre_repo, api=cidre_provider, api_url=cidre_provider_endpoint) }}"
+      cidre_repo_data: "{{ lookup('ebuildy.cidre.repository', cidre_repo, api=cidre_provider, api_url=cidre_provider_endpoint) }}"
   #- debug:
   #    var: cidre_milestone
+  - when: cidre_repo_data.id is not defined
+    fail:
+      msg: "Project {{ cidre_repo }} not found!"
   - when: cidre_milestone.id is not defined
     fail:
       msg: "Milestone {{ cidre_version }} not found! You must create it manualy."
-  - ebuildy.cidre.api:
-      provider: "{{ cidre_provider }}"
-      provider_endpoint: "{{ cidre_provider_endpoint }}"
-      context:
-      - repos: "{{ cidre_repo }}"
-    register: cidre_repo_data
 
 - name: Initialize
   tags: ["never", "cidre_init"]

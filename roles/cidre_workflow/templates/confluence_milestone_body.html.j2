@@ -1,5 +1,9 @@
-{{ cidre_provider }} milestone: <a href="{{ cidre_milestone.web_url }}" title="open on {{ cidre_provider }}">{{ cidre_milestone.web_url }}</a>
-{{ cidre_provider }} tag <a href="{{ tag_web_url }}" title="git tag on {{ cidre_provider }}">{{ tag_web_url}}</a>
+<ul>
+  <li>{% if git_tag_previous == ms_version %}First tag{% else %}From {{ git_tag_previous }}{% endif %}</li>
+  <li>From {{ git_changes_date_min.stdout }} to {{ git_changes_date_max.stdout }}</li>
+  <li>{{ cidre_provider }} milestone: <a href="{{ my_cidre_milestone.web_url }}" title="open on {{ cidre_provider }}">{{ my_cidre_milestone.web_url }}</a></li>
+  <li>{{ cidre_provider }} tag <a href="{{ cidre_blog_tag_url }}" title="git tag on {{ cidre_provider }}">{{ cidre_blog_tag_url }}</a></li>
+</ul>
 
 {% if cidre_issue_provider %}
 

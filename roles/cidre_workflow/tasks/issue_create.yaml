@@ -1,5 +1,16 @@
 ---
 
+- when: false
+  set_fact:
+    repo_provider: &repo_provider
+      api: "{{ cidre_provider }}"
+      api_url: "{{ cidre_provider_endpoint }}"
+      #api_token: "{{ cidre_blog_api_token }}"
+    issue_provider: &issue_provider
+      api: "{{ cidre_issue_provider }}"
+      api_url: "{{ cidre_issue_provider_endpoint }}"
+      #api_token: "{{ cidre_blog_api_token }}"
+
 - when: title is not defined
   fail:
     msg: "variable title is missing!"
@@ -9,8 +20,7 @@
   block:
   - name: Github API > Create issue
     ebuildy.cidre.api:
-      provider: "{{ cidre_issue_provider }}"
-      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      <<: *issue_provider
       context:
       - repos: "{{ cidre_issue_repo }}"
       action: create
@@ -28,8 +38,7 @@
   block:
   - name: Gitlab API > Create issue
     ebuildy.cidre.api:
-      provider: "{{ cidre_issue_provider }}"
-      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      <<: *issue_provider
       context:
       - repos: "{{ cidre_issue_repo }}"
       action: create
@@ -50,8 +59,7 @@
   block:
   - name: Jira API > Create issue
     ebuildy.cidre.api:
-      provider: "{{ cidre_issue_provider }}"
-      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      <<: *issue_provider
       action: create
       resource: issue
       data:

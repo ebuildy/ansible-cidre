@@ -240,9 +240,9 @@ CONFLUENCE = {
 def run_module():
 
     module_args = dict(
-        provider=dict(type='str', choices=['github', 'gitlab', 'bitbucket', 'jira', 'confluence']),
-        provider_endpoint=dict(type='str'),
-        provider_access_token=dict(type='str'),
+        api=dict(type='str', choices=['github', 'gitlab', 'bitbucket', 'jira', 'confluence']),
+        api_url=dict(type='str'),
+        api_token=dict(type='str'),
         action=dict(type='str', choices=['get', 'update', 'create', 'delete'], default="get"),
         resource=dict(type='str'),
         query_string=dict(type='raw', default={}),
@@ -261,9 +261,9 @@ def run_module():
     if module.check_mode:
         module.exit_json(module.params)
 
-    arg_platform = params.get("provider")
-    arg_endpoint = params.get("provider_endpoint")
-    arg_access_token =  params.get("provider_access_token")
+    arg_platform = params.get("api")
+    arg_endpoint = params.get("api_url")
+    arg_access_token =  params.get("api_token")
     arg_resource = params.get("resource")
     arg_action = params.get("action")
     arg_context = params.get("context")
