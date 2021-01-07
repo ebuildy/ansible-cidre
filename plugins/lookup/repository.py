@@ -109,7 +109,6 @@ class LookupModule(LookupBase):
 
                 if arg_platform == 'github':
                     response_data['web_url'] = response_data['html_url']
-                    response_data['id'] = response_data['number']
 
                 ret.append(response_data)
 
