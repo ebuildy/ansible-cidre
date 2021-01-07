@@ -1,10 +1,20 @@
 ---
 
+- when: false
+  set_fact:
+    repo_provider: &repo_provider
+      api: "{{ cidre_provider }}"
+      api_url: "{{ cidre_provider_endpoint }}"
+      #api_token: "{{ cidre_blog_api_token }}"
+    issue_provider: &issue_provider
+      api: "{{ cidre_issue_provider }}"
+      api_url: "{{ cidre_issue_provider_endpoint }}"
+      #api_token: "{{ cidre_blog_api_token }}"
+
 - when: cidre_issue_provider == "github" or cidre_issue_provider == "gitlab"
   set_fact:
     api_query:
-      provider: "{{ cidre_issue_provider }}"
-      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      <<: *issue_provider
       resource: issues
       context:
       - repos: "{{ cidre_repo }}"
@@ -15,8 +25,7 @@
 - when: cidre_issue_provider == "jira"
   set_fact:
     api_query:
-      provider: "{{ cidre_issue_provider }}"
-      provider_endpoint: "{{ cidre_issue_provider_endpoint }}"
+      <<: *issue_provider
       resource: search
       query_string:
         jql: "project={{cidre_issue_repo}} AND fixVersion={{ cidre_issue_component }}-{{ cidre_version }}"

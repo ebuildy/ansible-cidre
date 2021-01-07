@@ -1,6 +1,15 @@
 ---
 
-
+- when: false
+  set_fact:
+    repo_provider: &repo_provider
+      api: "{{ cidre_provider }}"
+      api_url: "{{ cidre_provider_endpoint }}"
+      #api_token: "{{ cidre_blog_api_token }}"
+    issue_provider: &issue_provider
+      api: "{{ cidre_issue_provider }}"
+      api_url: "{{ cidre_issue_provider_endpoint }}"
+      #api_token: "{{ cidre_blog_api_token }}"
 
 - name: Get latest milestones
   ebuildy.cidre.api:
