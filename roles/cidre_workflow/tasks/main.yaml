@@ -1,22 +1,22 @@
 ---
 
-- when: false
-  set_fact:
-    repo_provider: &repo_provider
-      api: "{{ cidre_provider }}"
-      api_url: "{{ cidre_provider_endpoint }}"
-      #api_token: "{{ cidre_blog_api_token }}"
-    issue_provider: &issue_provider
-      api: "{{ cidre_issue_provider }}"
-      api_url: "{{ cidre_issue_provider_endpoint }}"
-      #api_token: "{{ cidre_blog_api_token }}"
-
 - import_tasks: bootstrap_check.yaml
 
 - name: Get current milestone
   tags:
-  - always
-  - cidre_fetch_data
+  - never
+  - cidre_ms_open
+  - cidre_ms_close
+  - cidre_ms_issues_close
+  - cidre_changelog
+  - cidre_bump_patch
+  - cidre_bump_minor
+  - cidre_bump_major
+  - cidre_info
+  - cidre_status
+  - cidre_release_create
+  - cidre_status_create
+  - cidre_fetch_ms
   block:
   - set_fact:
       cidre_milestone: "{{ lookup('ebuildy.cidre.milestone', cidre_version, repo=cidre_repo, api=cidre_provider, api_url=cidre_provider_endpoint) }}"
