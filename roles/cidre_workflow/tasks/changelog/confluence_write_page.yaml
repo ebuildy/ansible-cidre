@@ -12,7 +12,7 @@
     resource: content
     query_string:
       space: "{{ cidre_blog_repo }}"
-      title: MileStone {{ ms_version }}
+      title: "{{ cidre_blog_page_title }}"
   register: confluence_page_response
 
 - when: confluence_page_response.content.size > 0
@@ -68,7 +68,7 @@
     resource: content
     data:
       type: page
-      title: MileStone {{ ms_version }}
+      title: "{{ cidre_blog_page_title }}"
       space:
         key: "{{ cidre_blog_repo }}"
       ancestors:

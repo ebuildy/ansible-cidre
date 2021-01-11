@@ -29,5 +29,6 @@ cidre_blog_api_token: "{{ lookup('env', (cidre_blog_provider | upper) ~ '_TOKEN'
 cidre_confluence_jira_server:
 cidre_confluence_jira_server_id:
 
+cidre_blog_page_title: "MileStone {{ cidre_repo_data.name }} {{ ms_version }}"
 cidre_blog_changelog_git_format: "[%ci] @%aN %h <a href=\"{{ cidre_repo_data.web_url }}/-/commit/%H\">%s</a>"
 cidre_blog_tag_url: "{{ cidre_repo_data.web_url }}/-/tags/{{ ms_version }}"
